@@ -1,4 +1,4 @@
-package org.zkwatchers;
+package org.zk.watchers;
 
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
@@ -24,7 +24,7 @@ public class LeaderChangeListener implements IZkChildListener {
                 System.out.println("Master already made");
             }
         }else{
-            System.out.println("New leader is "+Main.zkClient.getLeaderNode());
+            System.out.println("New leader is "+Main.zkClient.getLeaderNode().getAddress());
         }
 
     }

@@ -1,10 +1,12 @@
-package org.zkwatchers;
+package org.zk.watchers;
 
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
+import org.zk.dataClasses.Leader;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ZookeeperClient {
@@ -14,16 +16,27 @@ public class ZookeeperClient {
     public ZookeeperClient(String zookeperServerLocation){
         System.out.println(id);
         zkClient = new ZkClient(zookeperServerLocation, 5000, 3000, new Serializer());
-        if (!zkClient.exists("/election")) {
-            zkClient.create("/election", "election node", CreateMode.PERSISTENT);
-        }
     }
 
-    //Check if there is a leader
-    public boolean leaderExists(){return zkClient.exists("/election/master");}
+    /**
+     *
+     * @return True if there is a leader, false otherwise
+     */
+    public boolean leaderExists(){return zkClient.exists("/election/leader");}
 
-    //get the leader node's IP
-    public String getLeaderNode(){return zkClient.readData("/election/leader", true);}
+    /**
+     *
+     * @return The leader node's IP address and port number to forward data to
+     */
+    public Leader getLeaderNode(){return zkClient.readData("/election/leader", true);}
+
+    /**
+     * Elects a new leader by trying to put itself in the leader node before the other live servers,
+     * the server that gets to the node first wins and becomes the leader.
+     * Upon winning the election, the new leader begins listening for requests from the other servers
+     * int the cluster, even the one that just went down since it is possible it will come back up and
+     * become a follower.
+     */
 
     public void electLeader() {
         /*
@@ -31,7 +44,7 @@ public class ZookeeperClient {
          * if it doesn't exist, create it
          */
         if(!zkClient.exists("/election"))
-            zkClient.create("/election/leader", "election node", CreateMode.PERSISTENT);
+            zkClient.create("/election/leader", new Leader("election node"), CreateMode.EPHEMERAL);
 
         /*
          * Try making yourself the leader node
@@ -39,10 +52,9 @@ public class ZookeeperClient {
          * in something like Paxos
          */
         try{
-            zkClient.create("/election/leader", String.valueOf(id), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            zkClient.create("/election/leader", new Leader(String.valueOf(id)), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         } catch (ZkNodeExistsException e) {
-            System.out.println("Leader already made");
-            System.out.println(getLeaderNode());
+            System.out.println("Leader already made: "+getLeaderNode().getAddress());
         }
     }
 
