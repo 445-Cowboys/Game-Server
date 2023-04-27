@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class ZookeeperData {
     public ZookeeperData(){}
@@ -27,16 +28,17 @@ public abstract class ZookeeperData {
             case 2:
                 return new PublicEncryptionKey(new BigInteger(dataOfInterest));
             case 3:
-                System.out.println("Client keys");
                 ByteArrayInputStream bais = new ByteArrayInputStream(dataOfInterest);
                 ObjectInputStream ois = new ObjectInputStream(bais);
                 //your IDE will probably throw a warning saying to genrify this but we'll never not put an arraylist of big ints here
                 return new ClientKeys((ArrayList<BigInteger>) ois.readObject());
             case 4:
-                //will do after talking with tom tmrw
-                break;
+                bais = new ByteArrayInputStream(dataOfInterest);
+                ois = new ObjectInputStream(bais);
+                //your IDE will probably throw a warning saying to genrify this but we'll never not put a list of GameRoom objects here
+                return new GameRoomsInfo((List<GameRoom>) ois.readObject());
             case 5:
-                //will do after talking with tom tmrw
+                //
                 break;
             //we will never reach the default case unless something horribly wrong has happened
             default: return null;
