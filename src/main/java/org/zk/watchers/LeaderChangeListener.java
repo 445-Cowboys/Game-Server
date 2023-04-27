@@ -2,7 +2,7 @@ package org.zk.watchers;
 
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
-import org.Server.Main;
+import org.server.Main;
 
 import java.util.List;
 

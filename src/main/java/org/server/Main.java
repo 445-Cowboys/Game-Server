@@ -1,4 +1,4 @@
-package org.Server;
+package org.server;
 
 import org.zk.watchers.LeaderChangeListener;
 import org.zk.watchers.ZookeeperClient;

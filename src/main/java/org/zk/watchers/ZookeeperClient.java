@@ -5,6 +5,8 @@ import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
+import org.zk.dataClasses.GameRoomsInfo;
+import org.zk.dataClasses.GameState;
 import org.zk.dataClasses.Leader;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,6 +31,19 @@ public class ZookeeperClient {
      * @return The leader node's IP address and port number to forward data to
      */
     public Leader getLeaderNode(){return zkClient.readData("/election/leader", true);}
+
+    /**
+     * Return the info about how many people are in each game room and if a session is started, over, or open for new players
+     * @return GameRoomsInfo data class
+     */
+    public GameRoomsInfo getGameRoomsInfo(){return zkClient.readData("/game-room-stats", true);}
+
+    /**
+     * Return the game state of a given room
+     * @param gameRoom the number of the room we want to get the game state for
+     * @return The game state of the given game room
+     */
+    public GameState getGameState(int gameRoom){return zkClient.readData("/game-state/"+gameRoom,true);}
 
     /**
      * Elects a new leader by trying to put itself in the leader node before the other live servers,
