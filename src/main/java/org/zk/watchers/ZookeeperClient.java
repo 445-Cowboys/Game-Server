@@ -79,12 +79,13 @@ public class ZookeeperClient {
         System.out.println(writers);
         Leader curLockHolder = zkClient.readData(path+"/write-lock/"+writers.get(0));
         //loop until we are next in line to write and we have no other readers
-        while(!curLockHolder.getAddress().equals(String.valueOf(id)) || numOfReaders!=0){
+        //we add the null check in case the current lock holder deletes and we are dealing with old data
+        while(curLockHolder==null || !curLockHolder.getAddress().equals(String.valueOf(id)) || numOfReaders!=0){
             System.out.println("can't write yet");
             numOfReaders = zkClient.getChildren(path+"/read-lock").size();
             writers = zkClient.getChildren(path+"/write-lock");
             writers.sort(String::compareTo);
-            curLockHolder = zkClient.readData(path+"/write-lock/"+writers.get(0));
+            curLockHolder = zkClient.readData(path+"/write-lock/"+writers.get(0), true);
         }
         System.out.println("writing!");
     }

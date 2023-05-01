@@ -23,7 +23,7 @@ public class Main {
         //unceremoniously
         //now get the lock
 //        zkClient.getReadLock("/election");
-//        Thread.sleep(50000);
+//        Thread.sleep(25000);
 //        zkClient.releaseReadLock("/election");
 
         zkClient.getWriteLock("/election");
