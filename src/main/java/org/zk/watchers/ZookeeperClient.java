@@ -21,7 +21,6 @@ public class ZookeeperClient {
     private int id = ThreadLocalRandom.current().nextInt();
 
     public ZookeeperClient(String zookeperServerLocation) throws IOException {
-        System.out.println(id);
         zkClient = new ZkClient(zookeperServerLocation, 5000, 10000, new Serializer());
         if(!zkClient.exists("/election")){
             zkClient.createPersistent("/election");
@@ -75,6 +74,47 @@ public class ZookeeperClient {
             zkClient.writeData("/lobby/waiting-clients", new WaitingClients());
             releaseWriteLock("/lobby/waiting-clients");
         }
+
+        //on game start, we will initialize these values
+        //everytime a player makes their move in the game, we set the player-has-gone-value to true
+        //if that value is not "true" within let's say 60 seconds, we assume the client has left
+        //and we remove them from the list of active players in the game room
+        //we'll monitor the "player-has-gone" value by having it check the node's value
+        //and sleep for a second if the value continues to be false
+        //the leader will be the one designated to do this job so that there is always only one server monitoring the
+        //the players who still need to go.
+        //the values will initially be null, meaning a game has not started
+        if(!zkClient.exists("/game-rooms")){
+            zkClient.createPersistent("/game-rooms");
+        }
+
+        if(!zkClient.exists("/game-rooms/1")){
+            zkClient.createPersistent("/game-rooms/1");
+            zkClient.createPersistent("/game-rooms/1/player-has-gone");
+            zkClient.createPersistent("/game-rooms/1/cur-player-turn");
+        }else{
+            zkClient.writeData("/game-rooms/1/player-has-gone", new ServerData(null));
+            zkClient.writeData("/game-rooms/1/cur-player-turn", new ServerData(null));
+        }
+
+        if(!zkClient.exists("/game-rooms/2")){
+            zkClient.createPersistent("/game-rooms/2");
+            zkClient.createPersistent("/game-rooms/2/player-has-gone");
+            zkClient.createPersistent("/game-rooms/2/cur-player-turn");
+        }else{
+            zkClient.writeData("/game-rooms/2/player-has-gone", new ServerData(null));
+            zkClient.writeData("/game-rooms/2/cur-player-turn", new ServerData(null));
+        }
+
+        if(!zkClient.exists("/game-rooms/3")){
+            zkClient.createPersistent("/game-rooms/3");
+            zkClient.createPersistent("/game-rooms/3/player-has-gone");
+            zkClient.createPersistent("/game-rooms/3/cur-player-turn");
+        }else{
+            zkClient.writeData("/game-rooms/3/player-has-gone", new ServerData(null));
+            zkClient.writeData("/game-rooms/3/cur-player-turn", new ServerData(null));
+        }
+
 
         zkClient.createEphemeral("/live-servers/"+id);
     }
@@ -218,8 +258,7 @@ public class ZookeeperClient {
         try{
             zkClient.createEphemeral("/election/leader", new ServerData(String.valueOf(id)));
             isLeader.set(true);
-            //if we get here that means we became the leader, spin up some follower listener threads now that will
-            //retransmit any packets that come to them back to the receiver
+            //spin up a thread for each game room that will check and make sure a player has gone within the alotted time
         } catch (ZkNodeExistsException e) {
             System.out.println("Leader already made: "+getLeaderNode().getAddress());
         }
