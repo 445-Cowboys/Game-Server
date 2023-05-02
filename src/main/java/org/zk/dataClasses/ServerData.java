@@ -2,11 +2,11 @@ package org.zk.dataClasses;
 
 import com.google.common.primitives.Bytes;
 
-public class Leader extends ZookeeperData{
+public class ServerData extends ZookeeperData{
 
     private String address;
 
-    public Leader(String address){
+    public ServerData(String address){
         this.address = address;
     }
     public String getAddress() {

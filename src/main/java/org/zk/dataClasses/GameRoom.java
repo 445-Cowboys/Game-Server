@@ -1,6 +1,8 @@
 package org.zk.dataClasses;
 
-public class GameRoom {
+import java.io.Serializable;
+
+public class GameRoom implements Serializable {
     private Integer size=0;
     //1=game is in session, 2=game has finished, 3=game room is open for a new session
     private Integer state=0;

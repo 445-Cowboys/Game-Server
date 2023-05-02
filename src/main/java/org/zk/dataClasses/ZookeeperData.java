@@ -24,7 +24,7 @@ public abstract class ZookeeperData {
         byte[] dataOfInterest = Arrays.copyOfRange(data, 2, data.length);
         switch (Byte.toUnsignedInt(data[0])){
             case 1:
-                return new Leader(new String(dataOfInterest));
+                return new ServerData(new String(dataOfInterest));
             case 2:
                 return new PublicEncryptionKey(new BigInteger(dataOfInterest));
             case 3:
@@ -40,6 +40,10 @@ public abstract class ZookeeperData {
             case 5:
                 //
                 break;
+            case 6:
+                bais = new ByteArrayInputStream(dataOfInterest);
+                ois = new ObjectInputStream(bais);
+                return new WaitingClients((ArrayList<String>) ois.readObject());
             //we will never reach the default case unless something horribly wrong has happened
             default: return null;
 
