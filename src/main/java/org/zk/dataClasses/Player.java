@@ -11,7 +11,6 @@ public class Player extends ZookeeperData {
     private int defense;
     private int ammo;
     private boolean isAlive;
-    private ArrayList<String> messages;
 
     public Player(int type) {
         this.type = PlayerType.values()[type];
@@ -21,36 +20,36 @@ public class Player extends ZookeeperData {
         this.defense = this.type.getDefense();
         this.ammo = 6;
         this.isAlive = true;
-        this.messages = new ArrayList<>();
     }
 
-    public void attack(Player villain) {
+    public String attack(Player villain) {
         int damage = this.attack - villain.getDefense();
         if (damage > 0) {
             villain.takeDamage(damage);
-            messages.add(this.name + " attacks " + villain.getName() + " for " + damage + " damage.");
+            return this.name + " attacks " + villain.getName() + " for " + damage + " damage.";
         } else {
-            messages.add(this.name + " attacks " + villain.getName() + " but does no damage.");
+            return this.name + " attacks " + villain.getName() + " but does no damage.";
         }
     }
 
-    public void defend() {
+    public String defend() {
         this.defense += 10;
-        messages.add(this.name + " defends and gains 10 defense power.");
+        return this.name + " defends and gains 10 defense power.";
     }
 
-    public void reload() {
+    public String reload() {
         this.ammo = 6;
-        messages.add(this.name + " has reloaded.");
+        return this.name + " has reloaded.";
     }
 
-    public void takeDamage(int damage) {
+    public String takeDamage(int damage) {
         this.health -= damage;
-        messages.add(this.name + " has taken " + damage + "points of damage.");
+        String message = this.name + " has taken " + damage + "points of damage.";
         if (this.health <= 0) {
             this.isAlive = false;
-            messages.add(this.name + " have succumbed to their wounds and fallen!");
+            message += "\n" + this.name + " have succumbed to their wounds and fallen!";
         }
+        return message;
     }
 
     public String getName() {
