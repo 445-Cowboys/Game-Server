@@ -1,5 +1,7 @@
 package org.zk.dataClasses;
 
+import java.util.ArrayList;
+
 public class Player extends ZookeeperData {
 
     private PlayerType type;
@@ -9,6 +11,7 @@ public class Player extends ZookeeperData {
     private int defense;
     private int ammo;
     private boolean isAlive;
+    private ArrayList<String> messages;
 
     public Player(int type) {
         this.type = PlayerType.values()[type];
@@ -18,34 +21,35 @@ public class Player extends ZookeeperData {
         this.defense = this.type.getDefense();
         this.ammo = 6;
         this.isAlive = true;
+        this.messages = new ArrayList<>();
     }
 
     public void attack(Player villain) {
         int damage = this.attack - villain.getDefense();
         if (damage > 0) {
             villain.takeDamage(damage);
-            System.out.println(this.name + " attacks " + villain.getName() + " for " + damage + " damage.");
+            messages.add(this.name + " attacks " + villain.getName() + " for " + damage + " damage.");
         } else {
-            System.out.println(this.name + " attacks " + villain.getName() + " but does no damage.");
+            messages.add(this.name + " attacks " + villain.getName() + " but does no damage.");
         }
     }
 
     public void defend() {
         this.defense += 10;
-        System.out.println(this.name + " defends and gains 10 defense power.");
+        messages.add(this.name + " defends and gains 10 defense power.");
     }
 
     public void reload() {
         this.ammo = 6;
-        System.out.println(this.name + " has reloaded.");
+        messages.add(this.name + " has reloaded.");
     }
 
     public void takeDamage(int damage) {
         this.health -= damage;
-        System.out.println(this.name + " has taken " +damage+ "points of damage.");
+        messages.add(this.name + " has taken " + damage + "points of damage.");
         if (this.health <= 0) {
             this.isAlive = false;
-            System.out.println(this.name + " have succumbed to their wounds and fallen!");
+            messages.add(this.name + " have succumbed to their wounds and fallen!");
         }
     }
 
