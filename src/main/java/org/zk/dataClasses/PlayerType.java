@@ -1,6 +1,7 @@
 package org.zk.dataClasses;
 
 public enum PlayerType {
+
     // Feel free to help with the naming, I will come back to this
     PLAYER_ONE("PlayerOne", 100, 10, 10),
     PLAYER_TWO("PlayerTwo", 100, 10, 10),
@@ -10,30 +11,30 @@ public enum PlayerType {
     VILLAIN_THREE("VillainThree", 100, 10, 10);
 
     private final String name;
-    private final int health;
-    private final int attack;
-    private final int defense;
+    private final int maxHealth;
+    private final int maxAttack;
+    private final int maxDefense;
 
-    PlayerType(String name, int health, int attack, int defense) {
+    PlayerType(String name, int maxHealth, int maxAttack, int maxDefense) {
         this.name = name;
-        this.health = health;
-        this.attack = attack;
-        this.defense = defense;
+        this.maxHealth = maxHealth;
+        this.maxAttack = maxAttack;
+        this.maxDefense = maxDefense;
     }
 
     public String getName() {
         return name;
     }
 
-    public int getHealth() {
-        return health;
+    public int getMaxHealth() {
+        return maxHealth;
     }
 
-    public int getAttack() {
-        return attack;
+    public int getMaxAttack() {
+        return maxAttack;
     }
 
-    public int getDefense() {
-        return defense;
+    public int getMaxDefense() {
+        return maxDefense;
     }
 }
