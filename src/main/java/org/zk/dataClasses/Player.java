@@ -22,36 +22,6 @@ public class Player extends ZookeeperData {
         this.isAlive = true;
     }
 
-    public String attack(Player villain) {
-        int damage = this.attack - villain.getDefense();
-        if (damage > 0) {
-            villain.takeDamage(damage);
-            return this.name + " attacks " + villain.getName() + " for " + damage + " damage.";
-        } else {
-            return this.name + " attacks " + villain.getName() + " but does no damage.";
-        }
-    }
-
-    public String defend() {
-        this.defense += 10;
-        return this.name + " defends and gains 10 defense power.";
-    }
-
-    public String reload() {
-        this.ammo = 6;
-        return this.name + " has reloaded.";
-    }
-
-    public String takeDamage(int damage) {
-        this.health -= damage;
-        String message = this.name + " has taken " + damage + "points of damage.";
-        if (this.health <= 0) {
-            this.isAlive = false;
-            message += "\n" + this.name + " have succumbed to their wounds and fallen!";
-        }
-        return message;
-    }
-
     public String getName() {
         return name;
     }
@@ -66,6 +36,22 @@ public class Player extends ZookeeperData {
 
     public int getDefense() {
         return defense;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public void setAttack(int attack) {
+        this.attack = attack;
+    }
+
+    public void setDefense(int defense) {
+        this.defense = defense;
+    }
+
+    public void setAmmo(int ammo) {
+        this.ammo = ammo;
     }
 
     @Override
