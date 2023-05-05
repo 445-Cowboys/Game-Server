@@ -43,7 +43,7 @@ public abstract class ZookeeperData {
             case 6:
                 bais = new ByteArrayInputStream(dataOfInterest);
                 ois = new ObjectInputStream(bais);
-                return new WaitingClients((ArrayList<String>) ois.readObject());
+                return new Clients((ArrayList<String>) ois.readObject());
             //we will never reach the default case unless something horribly wrong has happened
             default: return null;
 

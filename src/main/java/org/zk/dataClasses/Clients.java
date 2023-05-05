@@ -6,21 +6,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
-public class WaitingClients extends ZookeeperData{
-    private ArrayList<String> waitingClients = new ArrayList<>();
+public class Clients extends ZookeeperData{
+    private ArrayList<String> Clients = new ArrayList<>();
 
-    public WaitingClients(){}
+    public Clients(){}
 
-    public WaitingClients(ArrayList<String> waitingClients){this.waitingClients=waitingClients;}
+    public Clients(ArrayList<String> waitingClients){this.Clients=waitingClients;}
 
     @Override
     public byte[] serialize() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(waitingClients);
+            oos.writeObject(Clients);
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -28,14 +27,14 @@ public class WaitingClients extends ZookeeperData{
     }
 
     public void addClient(String clientIP){
-        waitingClients.add(clientIP);
+        Clients.add(clientIP);
     }
 
     public void removeClient(String clientIP){
-        waitingClients.remove(clientIP);
+        Clients.remove(clientIP);
     }
 
     public ArrayList<String> getWaitingClients() {
-        return waitingClients;
+        return Clients;
     }
 }

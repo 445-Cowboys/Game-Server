@@ -4,10 +4,11 @@ import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
 import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.data.ACL;
 import org.zk.dataClasses.GameRoomsInfo;
 import org.zk.dataClasses.GameState;
 import org.zk.dataClasses.ServerData;
-import org.zk.dataClasses.WaitingClients;
+import org.zk.dataClasses.Clients;
 
 import java.io.IOException;
 import java.util.List;
@@ -68,10 +69,10 @@ public class ZookeeperClient {
         }
 
         if(!zkClient.exists("/lobby/waiting-clients")){
-            zkClient.createPersistent("/lobby/waiting-clients", new WaitingClients());
+            zkClient.createPersistent("/lobby/waiting-clients", new Clients());
         }else{
             getWriteLock("/lobby/waiting-clients");
-            zkClient.writeData("/lobby/waiting-clients", new WaitingClients());
+            zkClient.writeData("/lobby/waiting-clients", new Clients());
             releaseWriteLock("/lobby/waiting-clients");
         }
 
@@ -88,33 +89,28 @@ public class ZookeeperClient {
             zkClient.createPersistent("/game-rooms");
         }
 
+        //total num of clients goes here
+
         if(!zkClient.exists("/game-rooms/1")){
             zkClient.createPersistent("/game-rooms/1");
-            zkClient.createPersistent("/game-rooms/1/player-has-gone");
-            zkClient.createPersistent("/game-rooms/1/cur-player-turn");
+            zkClient.createPersistent("/game-rooms/1/live-players", new Clients());
         }else{
-            zkClient.writeData("/game-rooms/1/player-has-gone", new ServerData(null));
-            zkClient.writeData("/game-rooms/1/cur-player-turn", new ServerData(null));
+            zkClient.writeData("/game-rooms/1/live-players", new Clients());
         }
 
         if(!zkClient.exists("/game-rooms/2")){
             zkClient.createPersistent("/game-rooms/2");
-            zkClient.createPersistent("/game-rooms/2/player-has-gone");
-            zkClient.createPersistent("/game-rooms/2/cur-player-turn");
+            zkClient.createPersistent("/game-rooms/2/live-players", new Clients());
         }else{
-            zkClient.writeData("/game-rooms/2/player-has-gone", new ServerData(null));
-            zkClient.writeData("/game-rooms/2/cur-player-turn", new ServerData(null));
+            zkClient.writeData("/game-rooms/2/live-players", new Clients());
         }
 
         if(!zkClient.exists("/game-rooms/3")){
             zkClient.createPersistent("/game-rooms/3");
-            zkClient.createPersistent("/game-rooms/3/player-has-gone");
-            zkClient.createPersistent("/game-rooms/3/cur-player-turn");
+            zkClient.createPersistent("/game-rooms/3/live-players", new Clients());
         }else{
-            zkClient.writeData("/game-rooms/3/player-has-gone", new ServerData(null));
-            zkClient.writeData("/game-rooms/3/cur-player-turn", new ServerData(null));
+            zkClient.writeData("/game-rooms/3/live-players", new Clients());
         }
-
 
         zkClient.createEphemeral("/live-servers/"+id);
     }
@@ -143,6 +139,9 @@ public class ZookeeperClient {
      * @return The game state of the given game room
      */
     public GameState getGameState(int gameRoom){return zkClient.readData("/game-state/"+gameRoom,true);}
+
+
+    public void addPlayerToLobby()
 
     /**
      * Get the write lock on a specific znode, once the lock is gotten, the current server is free to write to the specific location
@@ -223,6 +222,7 @@ public class ZookeeperClient {
         //if we get here, we know there are no more writers queued up, so we can grab the read lock
         //create our ephemeral sequential node. we won't actually use any of the sequential propertiy things, but just use it
         //so that multiple read locks can get allocated
+        System.out.println("Now reading "+path);
         zkClient.createEphemeralSequential(path+"/read-lock/lock-", new ServerData(String.valueOf(id)));
     }
 
@@ -258,7 +258,8 @@ public class ZookeeperClient {
         try{
             zkClient.createEphemeral("/election/leader", new ServerData(String.valueOf(id)));
             isLeader.set(true);
-            //spin up a thread for each game room that will check and make sure a player has gone within the alotted time
+            //spin up a thread that will send heartbeats to the clients every thirty seconds
+            new Thread(new ClientWatcher()).start();
         } catch (ZkNodeExistsException e) {
             System.out.println("Leader already made: "+getLeaderNode().getAddress());
         }

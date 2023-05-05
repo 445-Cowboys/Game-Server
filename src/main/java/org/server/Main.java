@@ -20,11 +20,18 @@ public class Main {
         //This forever loop will always listen for input from a client, it will never stop unless the server crashes
         //unceremoniously
         //arg[1] has our IP address (will always be listening on port 7806)
-        DatagramChannel channel = DatagramChannel.open().bind(new InetSocketAddress(args[1], 7806));
+//        zkClient.getWriteLock("/election");
+//        Thread.sleep(90000);
+//        zkClient.releaseWriteLock("/election");
+
+//        zkClient.getReadLock("/election");
+//        Thread.sleep(60000);
+//        zkClient.releaseReadLock("/election");
+//        DatagramChannel channel = DatagramChannel.open().bind(new InetSocketAddress("localhost", 7086));
         for(;;){
             //listen for messages sent to this server, pass along the message to a request handler
-            ByteBuffer data = ByteBuffer.allocate(1024);
-            new Thread(new RequestHandler(channel.receive(data), data)).start();
+//            ByteBuffer data = ByteBuffer.allocate(1024);
+//            new Thread(new RequestHandler(channel.receive(data), data)).start();
         }
     }
 }

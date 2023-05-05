@@ -4,7 +4,7 @@ import com.google.common.primitives.Bytes;
 
 public class ServerData extends ZookeeperData{
 
-    private String address;
+    private final String address;
 
     public ServerData(String address){
         this.address = address;

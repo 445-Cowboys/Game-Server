@@ -8,6 +8,10 @@ import java.security.NoSuchAlgorithmException;
 public class MainTest {
 
     public static void main(String args[]){
+        ByteBuffer buf = new Factory().makeGameRooms(new int[]{0,0,0}, new boolean[]{false, false, false},new int[]{0,0,0}, new int[]{1,1,1});
+
+        System.out.println(new GameRooms(buf));
+
 
 
         try {

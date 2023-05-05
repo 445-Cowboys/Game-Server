@@ -1,7 +1,13 @@
 package org.server;
 
+import org.server.packets.packets.Factory;
+import org.server.packets.packets.GameRooms;
+import org.zk.dataClasses.GameRoomsInfo;
+
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 
 //This is going to take a packet, run it through a switch case that will
 //decode the packet into a usable class object where different things will
@@ -9,7 +15,8 @@ import java.nio.ByteBuffer;
 public class RequestHandler implements Runnable{
     ByteBuffer data;
     SocketAddress client;
-    public RequestHandler(SocketAddress client, ByteBuffer data){
+    DatagramChannel channel = DatagramChannel.open().bind(null);
+    public RequestHandler(SocketAddress client, ByteBuffer data) throws IOException {
         this.client = client;
         this.data = data;
     }
@@ -20,16 +27,29 @@ public class RequestHandler implements Runnable{
      */
     @Override
     public void run() {
-        packetHandler();
+        try {
+            packetHandler();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
     /**
-     * I only put the packet handling in a different method in case I end up needing to modify the run function
+     * Handles packet info depending on the opcode found in the front
+     * @throws IOException
      */
-    public static void packetHandler(){
-        System.out.println("we're here");
+    public void packetHandler() throws IOException {
+        switch ((int) data.get(0)){
+            case 20:
+                System.out.println("Received an initial awake connection from " + client);
+                GameRoomsInfo gfInfo = Main.zkClient.getGameRoomsInfo();
+                //add the ip address of the client to the list of clients in the lobby room
 
-
+                channel.send(new Factory().makeGameRooms(new int[]{gfInfo.getGameRoom(0).getSize(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new boolean[]{gfInfo.getGameRoom(0).getRoomIsFull(), gfInfo.getGameRoom(1).getRoomIsFull(), gfInfo.getGameRoom(2).getRoomIsFull()},new int[]{gfInfo.getGameRoom(0).getState(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new int[]{1,0,2}), client);
+                break;
+            default:
+                break;
+        }
     }
 }
