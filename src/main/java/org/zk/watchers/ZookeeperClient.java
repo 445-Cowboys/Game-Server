@@ -3,26 +3,21 @@ package org.zk.watchers;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
-import org.zk.dataClasses.GameRoomsInfo;
-import org.zk.dataClasses.GameState;
-import org.zk.dataClasses.ServerData;
-import org.zk.dataClasses.Clients;
+import org.zk.dataClasses.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ZookeeperClient {
-    private ZkClient zkClient;
+    private final ZkClient zkClient;
 
-    private AtomicBoolean isLeader = new AtomicBoolean(false);
-    private int id = ThreadLocalRandom.current().nextInt();
+    private final AtomicBoolean isLeader = new AtomicBoolean(false);
+    private final int id = ThreadLocalRandom.current().nextInt();
 
-    public ZookeeperClient(String zookeperServerLocation) throws IOException {
+    public ZookeeperClient(String zookeperServerLocation) {
         zkClient = new ZkClient(zookeperServerLocation, 5000, 10000, new Serializer());
+
         if(!zkClient.exists("/election")){
             zkClient.createPersistent("/election");
         }
@@ -89,7 +84,11 @@ public class ZookeeperClient {
             zkClient.createPersistent("/game-rooms");
         }
 
-        //total num of clients goes here
+        if(!zkClient.exists("/player-count")){
+            zkClient.createPersistent("/player-count", new PlayerCount());
+        }else{
+            zkClient.writeData("/player-count", new PlayerCount());
+        }
 
         if(!zkClient.exists("/game-rooms/1")){
             zkClient.createPersistent("/game-rooms/1");
@@ -141,7 +140,18 @@ public class ZookeeperClient {
     public GameState getGameState(int gameRoom){return zkClient.readData("/game-state/"+gameRoom,true);}
 
 
-    public void addPlayerToLobby()
+    public void addPlayerToLobby(String playerAddress){
+        //get the lock for writing to the lobby
+        getWriteLock("/lobby/waiting-clients");
+        //add the new address to the list of waiting clients
+        zkClient.writeData("/lobby/waiting-clients", ((Clients) zkClient.readData("/lobby/waiting-clients")).addClient(playerAddress));
+        //increment the player count
+        getWriteLock("/player-count");
+        zkClient.writeData("/player-count", ((PlayerCount) zkClient.readData("/player-count")).increment());
+        releaseWriteLock("/player-count");
+        //release the lock for writing to the lobby
+        releaseWriteLock("/lobby/waiting-clients");
+    }
 
     /**
      * Get the write lock on a specific znode, once the lock is gotten, the current server is free to write to the specific location

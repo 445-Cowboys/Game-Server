@@ -44,6 +44,8 @@ public abstract class ZookeeperData {
                 bais = new ByteArrayInputStream(dataOfInterest);
                 ois = new ObjectInputStream(bais);
                 return new Clients((ArrayList<String>) ois.readObject());
+            case 7:
+                return new PlayerCount(dataOfInterest[0]);
             //we will never reach the default case unless something horribly wrong has happened
             default: return null;
 

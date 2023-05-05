@@ -45,7 +45,7 @@ public class RequestHandler implements Runnable{
                 System.out.println("Received an initial awake connection from " + client);
                 GameRoomsInfo gfInfo = Main.zkClient.getGameRoomsInfo();
                 //add the ip address of the client to the list of clients in the lobby room
-
+                Main.zkClient.addPlayerToLobby(client.toString().split(":")[0]);
                 channel.send(new Factory().makeGameRooms(new int[]{gfInfo.getGameRoom(0).getSize(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new boolean[]{gfInfo.getGameRoom(0).getRoomIsFull(), gfInfo.getGameRoom(1).getRoomIsFull(), gfInfo.getGameRoom(2).getRoomIsFull()},new int[]{gfInfo.getGameRoom(0).getState(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new int[]{1,0,2}), client);
                 break;
             default:
