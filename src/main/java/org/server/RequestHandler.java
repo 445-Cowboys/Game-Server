@@ -55,17 +55,22 @@ public class RequestHandler implements Runnable{
         // temporary until full packet handling is implemented
         GameState gs = Main.zkClient.getGameState(0);
 
-        // pretend we got an attack packet from the client
-        gs.playerAttack();
+        // pretend we got new player packets from the client
+        gs.addPlayer(0);
 
-        if (gs.getCurrentPlayer() == gs.getPlayers().size() - 1) { // if the villain is next
-            gs.villainAttack();
-        }
+        // pretend we got an attack packet from the client
+        gs.attack();
 
         // pretend we got a defend packet from the client
         gs.defend();
 
         // pretend we got a reload packet from the client
         gs.reload();
+
+        // if the villain is next
+        if (gs.getCurrentPlayer() == 3) {
+            gs.bossTurn();
+        }
+
     }
 }
