@@ -3,11 +3,12 @@ package org.zk.watchers;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
-import org.zk.dataClasses.*;
+import org.zk.dataClasses.GameRoomsInfo;
+import org.zk.dataClasses.GameState;
+import org.zk.dataClasses.PlayerCount;
+import org.zk.dataClasses.ServerData;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ZookeeperClient {
@@ -356,9 +357,11 @@ public class ZookeeperClient {
     }
 
 
-    public void deleteNode(String path){
+    /**
+     * Delete node at given path
+     * @param path path to delete node
+     */
+    public void deleteNode(String path) {
         zkClient.delete(path);
     }
-
-
 }

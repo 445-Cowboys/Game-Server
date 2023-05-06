@@ -118,11 +118,13 @@ class HeartBeat implements Runnable{
                     continue;
                 }
                 if ((int) ackBuf.get(0) == -1) {
+                    buf.rewind();
                     channel.close();
                     return;
                 }
                 //if we get here we somehow got a value from somewhere else so just retry without incrementing the retry num
             }
+
             //remove this client
             Main.zkClient.deleteNode(clientAddress);
             //TODO decrement total player count here

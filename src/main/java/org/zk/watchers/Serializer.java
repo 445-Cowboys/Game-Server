@@ -6,6 +6,7 @@ import org.zk.dataClasses.ZookeeperData;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 
 public class Serializer implements ZkSerializer {
     @Override
@@ -17,7 +18,7 @@ public class Serializer implements ZkSerializer {
     public Object deserialize(byte[] bytes) throws ZkMarshallingError {
         try {
             return ZookeeperData.deserialize(bytes);
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
     }
