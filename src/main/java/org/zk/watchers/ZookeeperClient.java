@@ -13,9 +13,10 @@ public class ZookeeperClient {
     private final ZkClient zkClient;
 
     private final AtomicBoolean isLeader = new AtomicBoolean(false);
-    private final int id = ThreadLocalRandom.current().nextInt();
+    private String id;
 
-    public ZookeeperClient(String zookeperServerLocation) {
+    public ZookeeperClient(String zookeperServerLocation, String id) {
+        this.id = id;
         zkClient = new ZkClient(zookeperServerLocation, 5000, 10000, new Serializer());
 
         if(!zkClient.exists("/election")){
@@ -73,12 +74,12 @@ public class ZookeeperClient {
 
         //on game start, we will initialize these values
         //everytime a player makes their move in the game, we set the player-has-gone-value to true
-        //if that value is not "true" within let's say 60 seconds, we assume the client has left
+        //if that value is not "true" within let's say 60 seconds, we assume the client has left,
         //and we remove them from the list of active players in the game room
         //we'll monitor the "player-has-gone" value by having it check the node's value
         //and sleep for a second if the value continues to be false
         //the leader will be the one designated to do this job so that there is always only one server monitoring the
-        //the players who still need to go.
+        // players who still need to go.
         //the values will initially be null, meaning a game has not started
         if(!zkClient.exists("/game-rooms")){
             zkClient.createPersistent("/game-rooms");
@@ -112,6 +113,16 @@ public class ZookeeperClient {
         }
 
         zkClient.createEphemeral("/live-servers/"+id);
+    }
+
+    public int checkServerStatus(String id){
+        if(zkClient.exists("/live-servers/"+id)){
+            if(getLeaderNode().getAddress().equals(id)){
+                return 2;
+            }
+            return 1;
+        }
+        return 0;
     }
 
     /**
@@ -154,7 +165,7 @@ public class ZookeeperClient {
     }
 
     /**
-     * Get the write lock on a specific znode, once the lock is gotten, the current server is free to write to the specific location
+     * Get the write lock on a specific znode; once the lock is gotten, the current server is free to write to the specific location
      * @param path the path of the znode we want to modify
      */
     public void getWriteLock(String path){
@@ -219,7 +230,7 @@ public class ZookeeperClient {
         //future use and grab the read lock
         if(!zkClient.exists(path+"/write-lock")){
             zkClient.createPersistent(path+"/write-lock");
-            zkClient.createEphemeralSequential(path+"read-lock/lock-", new ServerData(String.valueOf(id)));
+            zkClient.createEphemeralSequential(path+"read-lock/lock-", new ServerData(id));
             return;
         }
         List<String> writers = zkClient.getChildren(path+"/write-lock");
@@ -233,7 +244,7 @@ public class ZookeeperClient {
         //create our ephemeral sequential node. we won't actually use any of the sequential propertiy things, but just use it
         //so that multiple read locks can get allocated
         System.out.println("Now reading "+path);
-        zkClient.createEphemeralSequential(path+"/read-lock/lock-", new ServerData(String.valueOf(id)));
+        zkClient.createEphemeralSequential(path+"/read-lock/lock-", new ServerData(id));
     }
 
 
@@ -244,7 +255,7 @@ public class ZookeeperClient {
     public void releaseReadLock(String path){
         for(String child:zkClient.getChildren(path+"/read-lock")){
             //find the reader we want to get rid of, delete it, and then return.
-            if(((ServerData)zkClient.readData(path+"/read-lock/"+child)).getAddress().equals(String.valueOf(id))){
+            if(((ServerData)zkClient.readData(path+"/read-lock/"+child)).getAddress().equals(id)){
                 zkClient.delete(path+"/read-lock/"+child);
                 System.out.println("Read lock released!");
                 return;
@@ -266,7 +277,7 @@ public class ZookeeperClient {
          * in something like Paxos
          */
         try{
-            zkClient.createEphemeral("/election/leader", new ServerData(String.valueOf(id)));
+            zkClient.createEphemeral("/election/leader", new ServerData(id));
             isLeader.set(true);
             //spin up a thread that will send heartbeats to the clients every thirty seconds
             new Thread(new ClientWatcher()).start();

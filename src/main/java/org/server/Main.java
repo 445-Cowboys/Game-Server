@@ -13,7 +13,7 @@ public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         //args[0] holds the IP address of the zk server (it will always be on port 2181)
         //initiate the zookeeper watchers
-        zkClient=new ZookeeperClient(args[0]);
+        zkClient=new ZookeeperClient(args[0], args[1]);
         zkClient.registerLeaderChangeWatcher("/election", new LeaderChangeListener());
         //the value at args[1] is the IP and port that the server is listening on
         zkClient.electLeader();
@@ -27,11 +27,11 @@ public class Main {
 //        zkClient.getReadLock("/election");
 //        Thread.sleep(60000);
 //        zkClient.releaseReadLock("/election");
-//        DatagramChannel channel = DatagramChannel.open().bind(new InetSocketAddress("localhost", 7086));
+        DatagramChannel channel = DatagramChannel.open().bind(new InetSocketAddress("localhost", 7086));
         for(;;){
             //listen for messages sent to this server, pass along the message to a request handler
-//            ByteBuffer data = ByteBuffer.allocate(1024);
-//            new Thread(new RequestHandler(channel.receive(data), data)).start();
+            ByteBuffer data = ByteBuffer.allocate(1024);
+            new Thread(new RequestHandler(channel.receive(data), data)).start();
         }
     }
 }

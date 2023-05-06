@@ -26,9 +26,9 @@ public class Clients extends ZookeeperData{
         return Bytes.concat(new byte[]{Integer.valueOf(6).byteValue(), Integer.valueOf(0).byteValue()}, bos.toByteArray());
     }
 
-    public ArrayList<String> addClient(String clientIP){
+    public Clients addClient(String clientIP){
         Clients.add(clientIP);
-        return Clients;
+        return this;
     }
 
     public void removeClient(String clientIP){

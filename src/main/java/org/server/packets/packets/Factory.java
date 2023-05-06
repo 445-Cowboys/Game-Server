@@ -126,6 +126,15 @@ public class Factory {
             return buffer;
         }
 
+        public ByteBuffer makeHeartbeatAckPacket(){
+            ByteBuffer buffer = ByteBuffer.allocate(1);
+
+            buffer.put((byte) 0x0c);
+
+            buffer.flip();
+            return buffer;
+        }
+
 
 
     }

@@ -16,15 +16,19 @@ public class GameStart extends Packet {
 
     public GameStart(ByteBuffer buffer){
 
+        //This code readies the bytebuffer data to be read
         int totalLength = buffer.limit();
+        System.out.println((totalLength));
         this.data = new byte[totalLength];
         buffer.get(data, 0, data.length);
         buffer.rewind();
         int offset = 2;
 
+        //Start pulling data
         this.character = buffer.getInt(offset);
         offset += 2;
-        byte[] symmetricKeyBytes = new byte[totalLength - offset];
+        //byte[] symmetricKeyBytes = new byte[totalLength - offset];
+        byte[] symmetricKeyBytes = new byte[8];
         buffer.get(symmetricKeyBytes);
 
         // Convert the symmetric key bytes back into a SecretKey object
