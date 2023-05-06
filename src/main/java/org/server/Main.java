@@ -27,7 +27,7 @@ public class Main {
 //        zkClient.getReadLock("/election");
 //        Thread.sleep(60000);
 //        zkClient.releaseReadLock("/election");
-        DatagramChannel channel = DatagramChannel.open().bind(new InetSocketAddress("localhost", 7086));
+        DatagramChannel channel = DatagramChannel.open().bind(new InetSocketAddress(args[1], 7086));
         for(;;){
             //listen for messages sent to this server, pass along the message to a request handler
             ByteBuffer data = ByteBuffer.allocate(1024);
