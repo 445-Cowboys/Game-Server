@@ -3,6 +3,7 @@ package org.server;
 import org.server.packets.packets.Factory;
 import org.server.packets.packets.GameRooms;
 import org.zk.dataClasses.GameRoomsInfo;
+import org.zk.dataClasses.GameState;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -52,5 +53,17 @@ public class RequestHandler implements Runnable{
             default:
                 break;
         }
+
+        // temporary until full packet handling is implemented
+        GameState gs = Main.zkClient.getGameState(0);
+
+        // pretend we got an attack packet from the client
+        gs.attack();
+
+        // pretend we got a defend packet from the client
+        gs.defend();
+
+        // pretend we got a reload packet from the client
+        gs.reload();
     }
 }
