@@ -1,17 +1,15 @@
 package org.zk.watchers;
 
-import org.checkerframework.checker.units.qual.A;
 import org.server.Main;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.*;
 
 public class ClientWatcher implements Runnable{
     long delay;
@@ -78,6 +76,7 @@ public class ClientWatcher implements Runnable{
 class HeartBeat implements Runnable{
     String clientAddress;
     int clientType;
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public HeartBeat(String clientAddress, int clientType){
         this.clientAddress=clientAddress;
@@ -95,22 +94,38 @@ class HeartBeat implements Runnable{
         ByteBuffer buf = ByteBuffer.allocate(1024);
         buf.put((byte) -1);
         buf.flip();
-        //I think we agreed the port would be 7086?
-        try {
-            for(;;) {
-                channel.send(buf, new InetSocketAddress(clientAddress, 7086));
-
-                //and now the channel waits to receive word back from the client
-                ByteBuffer ackBuf = ByteBuffer.allocate(1);
+        ByteBuffer ackBuf = ByteBuffer.allocate(1);
+        //our task we will time
+        Callable<Void> Callable = () -> {
+            try {
                 channel.receive(ackBuf);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        };
+        try {
+            int retryNum=0;
+            while(retryNum < 10) {
+                channel.send(buf, new InetSocketAddress(clientAddress.split("/")[0], Integer.parseInt(clientAddress.split("/")[1])));
+                Future<Void> task = executorService.submit(Callable);
+                //and now the channel waits to receive word back from the client
+                try{
+                    task.get(500, TimeUnit.MILLISECONDS);
+                }catch (TimeoutException | InterruptedException | ExecutionException e){
+                    //we didn't get an ack back in time, increment the retry counter and continue
+                    retryNum++;
+                    continue;
+                }
                 if ((int) ackBuf.get(0) == -1) {
+                    channel.close();
                     return;
                 }
-                //if it is not -1, something really weird happened so we should initiate the loop and send the heart beat again
-
-
-                //Note: tomorrwo I'll put this all in a future and it'll delete the client if they are not found
+                //if we get here we somehow got a value from somewhere else so just retry without incrementing the retry num
             }
+            //remove this client
+            Main.zkClient.deleteNode(clientAddress);
+            //TODO decrement total player count here
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

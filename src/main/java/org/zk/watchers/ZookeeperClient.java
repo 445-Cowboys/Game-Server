@@ -12,9 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ZookeeperClient {
     private final ZkClient zkClient;
-
     private final AtomicBoolean isLeader = new AtomicBoolean(false);
-    private String id;
+    private final String id;
 
     public ZookeeperClient(String zookeperServerLocation, String id) {
         this.id = id;
@@ -23,6 +22,7 @@ public class ZookeeperClient {
         if(!zkClient.exists("/election")){
             zkClient.createPersistent("/election");
         }
+
         //start up by making sure all the paths needed are created
         if(!zkClient.exists("/game-states")){
             zkClient.createPersistent("/game-states");
@@ -353,6 +353,11 @@ public class ZookeeperClient {
      */
     public void registerLeaderChangeWatcher(String path, IZkChildListener listener){
         zkClient.subscribeChildChanges(path, listener);
+    }
+
+
+    public void deleteNode(String path){
+        zkClient.delete(path);
     }
 
 
