@@ -5,6 +5,7 @@ import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
 import org.zk.dataClasses.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -65,10 +66,11 @@ public class ZookeeperClient {
         }
 
         if(!zkClient.exists("/lobby/waiting-clients")){
-            zkClient.createPersistent("/lobby/waiting-clients", new Clients());
+            zkClient.createPersistent("/lobby/waiting-clients");
         }else{
             getWriteLock("/lobby/waiting-clients");
-            zkClient.writeData("/lobby/waiting-clients", new Clients());
+            for(String client:zkClient.getChildren("/lobby/waiting-clients"))
+                zkClient.delete("lobby/waiting-clients/"+client);
             releaseWriteLock("/lobby/waiting-clients");
         }
 
@@ -93,23 +95,38 @@ public class ZookeeperClient {
 
         if(!zkClient.exists("/game-rooms/1")){
             zkClient.createPersistent("/game-rooms/1");
-            zkClient.createPersistent("/game-rooms/1/live-players", new Clients());
+            zkClient.createPersistent("/game-rooms/1/waiting-players");
+            zkClient.createPersistent("/game-rooms/1/live-players");
         }else{
-            zkClient.writeData("/game-rooms/1/live-players", new Clients());
+            for(String client:zkClient.getChildren("/game-rooms/1/waiting-players"))
+                zkClient.delete("/game-rooms/1/waiting-players/"+client);
+
+            for(String client:zkClient.getChildren("/game-rooms/1/live-players"))
+                zkClient.delete("/game-rooms/1/live-players/"+client);
         }
 
         if(!zkClient.exists("/game-rooms/2")){
             zkClient.createPersistent("/game-rooms/2");
-            zkClient.createPersistent("/game-rooms/2/live-players", new Clients());
+            zkClient.createPersistent("/game-rooms/2/waiting-players");
+            zkClient.createPersistent("/game-rooms/2/live-players");
         }else{
-            zkClient.writeData("/game-rooms/2/live-players", new Clients());
+            for(String client:zkClient.getChildren("/game-rooms/2/waiting-players"))
+                zkClient.delete("/game-rooms/2/waiting-players/"+client);
+
+            for(String client:zkClient.getChildren("/game-rooms/2/live-players"))
+                zkClient.delete("/game-rooms/2/live-players/"+client);
         }
 
         if(!zkClient.exists("/game-rooms/3")){
             zkClient.createPersistent("/game-rooms/3");
-            zkClient.createPersistent("/game-rooms/3/live-players", new Clients());
+            zkClient.createPersistent("/game-rooms/3/waiting-players");
+            zkClient.createPersistent("/game-rooms/3/live-players");
         }else{
-            zkClient.writeData("/game-rooms/3/live-players", new Clients());
+            for(String client:zkClient.getChildren("/game-rooms/3/waiting-players"))
+                zkClient.delete("/game-rooms/3/waiting-players/"+client);
+
+            for(String client:zkClient.getChildren("/game-rooms/3/live-players"))
+                zkClient.delete("/game-rooms/3/live-players/"+client);
         }
 
         zkClient.createEphemeral("/live-servers/"+id);
@@ -144,24 +161,59 @@ public class ZookeeperClient {
     public GameRoomsInfo getGameRoomsInfo(){return zkClient.readData("/lobby/stats", true);}
 
     /**
-     * Return the game state of a given room
-     * @param gameRoom the number of the room we want to get the game state for
-     * @return The game state of the given game room
+     * Get the clients currently waiting in the lobby
+     * @return The list of clients currently in the lobby
      */
-    public GameState getGameState(int gameRoom){return zkClient.readData("/game-state/"+gameRoom,true);}
+    public List<String> getWaitingClients(){
+        getReadLock("/lobby/waiting-clients");
+        List<String> clients = zkClient.getChildren("/lobby/waiting-clients");
+       releaseReadLock("/lobby/waiting-clients");
+       return clients;
+    }
+
+    /**
+     * Get the clients who are currently in a game room
+     * @param gameRoomNum the game room number
+     * @return the list of clients currently in a game
+     */
+    public List<String> getGameClients(int gameRoomNum){
+        getReadLock("/game-rooms/"+gameRoomNum+"/live-players");
+        List<String> clients = zkClient.getChildren("/game-rooms/"+gameRoomNum+"/live-players");
+        releaseReadLock("/game-rooms/"+gameRoomNum+"/live-players");
+        return clients;
+    }
+
+    /**
+     * Get the clients who are currently in a game room but waiting for it to start
+     * @param gameRoomNum the game room number
+     * @return the list of clients currently in a game
+     */
+    public List<String> getWaitingGameClients(int gameRoomNum){
+        getReadLock("/game-rooms/"+gameRoomNum+"/waiting-players");
+        List<String> clients = zkClient.getChildren("/game-rooms/"+gameRoomNum+"/waiting-players");
+        releaseReadLock("/game-rooms/"+gameRoomNum+"/waiting-players");
+        return clients;
+    }
+
+    public GameState getGameState(int gameRoomNum){
+        getReadLock("/game-rooms/"+gameRoomNum);
+        GameState gs = zkClient.readData("/game-rooms/"+gameRoomNum);
+        releaseReadLock("/game-rooms/"+gameRoomNum);
+        return gs;
+    }
 
 
+    /**
+     * Add a new client to the list of clients waiting in the lobby
+     * @param playerAddress IP address of added player
+     */
     public void addPlayerToLobby(String playerAddress){
-        //get the lock for writing to the lobby
-        getWriteLock("/lobby/waiting-clients");
         //add the new address to the list of waiting clients
-        zkClient.writeData("/lobby/waiting-clients", ((Clients) zkClient.readData("/lobby/waiting-clients")).addClient(playerAddress));
+        zkClient.createPersistent("/lobby/waiting-clients/"+playerAddress);
         //increment the player count
         getWriteLock("/player-count");
         zkClient.writeData("/player-count", ((PlayerCount) zkClient.readData("/player-count")).increment());
         releaseWriteLock("/player-count");
-        //release the lock for writing to the lobby
-        releaseWriteLock("/lobby/waiting-clients");
     }
 
     /**
