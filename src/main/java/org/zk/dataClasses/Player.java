@@ -31,6 +31,10 @@ public class Player extends ZookeeperData {
         return defense;
     }
 
+    public int getAmmo() {
+        return ammo;
+    }
+
     public boolean isAlive() {
         return isAlive;
     }
@@ -46,6 +50,10 @@ public class Player extends ZookeeperData {
 
     public void defend() {
         defense += 10;
+    }
+
+    public void shoot() {
+        ammo--;
     }
 
     public void reload() {
