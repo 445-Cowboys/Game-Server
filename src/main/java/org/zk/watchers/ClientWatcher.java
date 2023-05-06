@@ -14,6 +14,9 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientWatcher implements Runnable{
+    long delay;
+
+    public ClientWatcher(long delay){this.delay = delay;}
     Timer timer = new Timer();
     @Override
     public void run() {
@@ -68,7 +71,7 @@ public class ClientWatcher implements Runnable{
                 }
 
             }
-        },15_000,30_000);
+        },delay,30_000);
     }
 }
 

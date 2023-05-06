@@ -16,7 +16,7 @@ public class Main {
         zkClient=new ZookeeperClient(args[0], args[1]);
         zkClient.registerLeaderChangeWatcher("/election", new LeaderChangeListener());
         //the value at args[1] is the IP and port that the server is listening on
-        zkClient.electLeader();
+        zkClient.electLeader(15_000);
         //This forever loop will always listen for input from a client, it will never stop unless the server crashes
         //unceremoniously
         //arg[1] has our IP address (will always be listening on port 7806)

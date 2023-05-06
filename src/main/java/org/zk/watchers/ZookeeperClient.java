@@ -322,7 +322,7 @@ public class ZookeeperClient {
      * int the cluster, even the one that just went down since it is possible it will come back up and
      * become a follower.
      */
-    public void electLeader() {
+    public void electLeader(long delay) {
         /*
          * Try making yourself the leader node
          * we use ephemeral nodes to represent the election sequence stuff you would see
@@ -332,7 +332,7 @@ public class ZookeeperClient {
             zkClient.createEphemeral("/election/leader", new ServerData(id));
             isLeader.set(true);
             //spin up a thread that will send heartbeats to the clients every thirty seconds
-            new Thread(new ClientWatcher()).start();
+            new Thread(new ClientWatcher(delay)).start();
         } catch (ZkNodeExistsException e) {
             System.out.println("Leader already made: "+getLeaderNode().getAddress());
         }
