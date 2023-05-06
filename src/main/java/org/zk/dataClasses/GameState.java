@@ -4,22 +4,22 @@ import java.util.ArrayList;
 
 public class GameState extends ZookeeperData {
 
-    private final ArrayList<Player> players;
+    private final Player[] players;
+    private int numPlayers;
     private int currentPlayer;
     private String actionMessage;
 
-    public GameState(int[] playerTypes, int currentPlayer, String actionMessage) {
-        this.players = new ArrayList<>();
-        this.currentPlayer = currentPlayer;
-        this.actionMessage = actionMessage;
+    public GameState() {
+        this.players = new Player[4];
+        this.numPlayers = 0;
+        this.currentPlayer = 0;
 
-        for (int type : playerTypes) {
-            this.players.add(new Player(type));
-        }
+        this.players[3] = new Player(Character.getRandomBoss());
     }
 
-    public ArrayList<Player> getPlayers() {
-        return players;
+    public void addPlayer(int type) {
+        players[numPlayers] = new Player(Character.getPlayer(type));
+        numPlayers++;
     }
 
     public int getCurrentPlayer() {
@@ -30,68 +30,66 @@ public class GameState extends ZookeeperData {
         return actionMessage;
     }
 
-    public void playerAttack() {
-        Player player = players.get(currentPlayer);
-        Player villain = players.get(players.size() - 1); // villain is always the last player in the list
+    public void bossTurn() {
+        Player boss = players[3];
 
-        if (player.getAmmo() == 0) { // make sure player can actually attack
-            actionMessage = player.getName() + " has no ammo and cannot attack.";
-            currentPlayer = currentPlayer + 1 % players.size();
+        if ((int) Math.floor(Math.random() * 4) == 3) {
+            defend();
             return;
         }
 
-        int damageDealt = player.getAttack() - villain.getDefense();
-        if (damageDealt < 0) { damageDealt = 0; }
+        if (boss.getAmmo() == 0) {
+            reload();
+            return;
+        }
 
-        villain.takeDamage(damageDealt);
-        player.shoot();
+        ArrayList<String> messages = new ArrayList<>();
 
-        actionMessage = player.getName() + " attacks " + villain.getName() + " for " + damageDealt + " damage.";
-        currentPlayer = currentPlayer + 1 % players.size();
-    }
+        for (int i = 0; i < 3; i++) {
+            if (players[i].getHealth() > 0) {
+                attack();
 
-    public void villainAttack() {
-        Player villain = players.get(players.size() - 1); // villain is always the last player in the list
-        actionMessage = villain.getName() + " attacks:";
+                currentPlayer = 3;
+                messages.add(actionMessage);
 
-        for (int i = 0; i < players.size() - 1; i++) { // for all players except the boss
-            Player player = players.get(i);
-
-            if (villain.getAmmo() == 0) {
-                actionMessage += "\n" + villain.getName() + " has no ammo and cannot attack.";
-                break;
-            }
-
-            if (player.isAlive()) { // don't want to needlessly attack dead players
-                int damageDealt = villain.getAttack() - player.getDefense();
-                if (damageDealt < 0) { damageDealt = 0; }
-
-                player.takeDamage(damageDealt);
-                villain.shoot();
-
-                actionMessage += "\n" + player.getName() + " for " + damageDealt + " damage.";
+                if (boss.getAmmo() == 0) { break; }
             }
         }
 
-        currentPlayer = currentPlayer + 1 % players.size();
+        actionMessage = String.join("\n", messages);
+    }
+
+    public void attack() {
+        Player player = players[currentPlayer];
+        currentPlayer = currentPlayer + 1 % 4;
+
+        if (player.getAmmo() == 0) {
+            actionMessage = player.getNoAmmoMessage();
+            return;
+        }
+
+        Player boss = players[3];
+        int damageDealt = player.shoot(boss);
+
+        actionMessage = player.getShootMessage(boss.getName()) + "\n" + boss.getDamageMessage(damageDealt);
     }
 
     public void defend() {
-        Player player = players.get(currentPlayer);
+        Player player = players[currentPlayer];
+        currentPlayer = currentPlayer + 1 % 4;
 
-        player.defend();
+        player.upDefense(10);
 
-        actionMessage = player.getName() + " defends and gains 10 defense power.";
-        currentPlayer = currentPlayer + 1 % players.size();
+        actionMessage = player.getDefendMessage(10);
     }
 
     public void reload() {
-        Player player = players.get(currentPlayer);
+        Player player = players[currentPlayer];
+        currentPlayer = currentPlayer + 1 % 4;
 
         player.reload();
 
-        actionMessage = player.getName() + " has reloaded.";
-        currentPlayer = currentPlayer + 1 % players.size();
+        actionMessage = player.getReloadMessage();
     }
 
     @Override
