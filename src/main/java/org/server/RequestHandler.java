@@ -1,7 +1,6 @@
 package org.server;
 
 import org.server.packets.packets.Factory;
-import org.server.packets.packets.GameRooms;
 import org.zk.dataClasses.GameRoomsInfo;
 import org.zk.dataClasses.GameState;
 
@@ -57,7 +56,11 @@ public class RequestHandler implements Runnable{
         GameState gs = Main.zkClient.getGameState(0);
 
         // pretend we got an attack packet from the client
-        gs.attack();
+        gs.playerAttack();
+
+        if (gs.getCurrentPlayer() == gs.getPlayers().size() - 1) { // if the villain is next
+            gs.villainAttack();
+        }
 
         // pretend we got a defend packet from the client
         gs.defend();

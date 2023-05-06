@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public class GameState extends ZookeeperData {
 
-    ArrayList<Player> players;
-    int currentPlayer;
-    String actionMessage;
+    private final ArrayList<Player> players;
+    private int currentPlayer;
+    private String actionMessage;
 
     public GameState(int[] playerTypes, int currentPlayer, String actionMessage) {
         this.players = new ArrayList<>();
@@ -18,58 +18,80 @@ public class GameState extends ZookeeperData {
         }
     }
 
-    public void attack() {
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public int getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public String getActionMessage() {
+        return actionMessage;
+    }
+
+    public void playerAttack() {
         Player player = players.get(currentPlayer);
         Player villain = players.get(players.size() - 1); // villain is always the last player in the list
-        currentPlayer = currentPlayer + 1 % players.size();
+
+        if (player.getAmmo() == 0) { // make sure player can actually attack
+            actionMessage = player.getName() + " has no ammo and cannot attack.";
+            currentPlayer = currentPlayer + 1 % players.size();
+            return;
+        }
 
         int damageDealt = player.getAttack() - villain.getDefense();
-        actionMessage = player.getName() + " attacks " + villain.getName();
+        if (damageDealt < 0) { damageDealt = 0; }
 
-        if (damageDealt > 0) {
-            actionMessage += " for " + damageDealt + " damage.";
-            villain.takeDamage(damageDealt);
+        villain.takeDamage(damageDealt);
+        player.shoot();
 
-        } else {
-            actionMessage += " but does no damage.";
-        }
+        actionMessage = player.getName() + " attacks " + villain.getName() + " for " + damageDealt + " damage.";
+        currentPlayer = currentPlayer + 1 % players.size();
+    }
 
-        if (currentPlayer == players.size() - 1) { // the next turn is the boss turn
-            for (int i = 0; i < players.size() - 1; i++) { // for all players except the boss
-                Player p = players.get(i);
+    public void villainAttack() {
+        Player villain = players.get(players.size() - 1); // villain is always the last player in the list
+        actionMessage = villain.getName() + " attacks:";
 
-                if (p.isAlive()) { // don't want to needlessly attack dead players
-                    int damageDealtToPlayer = villain.getAttack() - p.getDefense();
-                    actionMessage += "\n" + villain.getName() + " attacks " + p.getName();
+        for (int i = 0; i < players.size() - 1; i++) { // for all players except the boss
+            Player player = players.get(i);
 
-                    if (damageDealtToPlayer > 0) {
-                        actionMessage += " for " + damageDealtToPlayer + " damage.";
-                        p.takeDamage(damageDealtToPlayer);
-
-                    } else {
-                        actionMessage += " but does no damage.";
-                    }
-                }
+            if (villain.getAmmo() == 0) {
+                actionMessage += "\n" + villain.getName() + " has no ammo and cannot attack.";
+                break;
             }
 
-            currentPlayer = currentPlayer + 1 % players.size();
+            if (player.isAlive()) { // don't want to needlessly attack dead players
+                int damageDealt = villain.getAttack() - player.getDefense();
+                if (damageDealt < 0) { damageDealt = 0; }
+
+                player.takeDamage(damageDealt);
+                villain.shoot();
+
+                actionMessage += "\n" + player.getName() + " for " + damageDealt + " damage.";
+            }
         }
+
+        currentPlayer = currentPlayer + 1 % players.size();
     }
 
     public void defend() {
         Player player = players.get(currentPlayer);
-        currentPlayer = currentPlayer + 1 % players.size();
+
+        player.defend();
 
         actionMessage = player.getName() + " defends and gains 10 defense power.";
-        player.defend();
+        currentPlayer = currentPlayer + 1 % players.size();
     }
 
     public void reload() {
         Player player = players.get(currentPlayer);
-        currentPlayer = currentPlayer + 1 % players.size();
+
+        player.reload();
 
         actionMessage = player.getName() + " has reloaded.";
-        player.reload();
+        currentPlayer = currentPlayer + 1 % players.size();
     }
 
     @Override
