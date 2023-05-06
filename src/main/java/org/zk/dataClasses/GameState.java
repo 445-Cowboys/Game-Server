@@ -2,8 +2,7 @@ package org.zk.dataClasses;
 
 import java.util.ArrayList;
 
-public class GameState extends ZookeeperData{
-    //Convening with Tom tomorrow before designing this!
+public class GameState extends ZookeeperData {
 
     ArrayList<Player> players;
     int currentPlayer;
@@ -28,7 +27,7 @@ public class GameState extends ZookeeperData{
 
         if (damageDealt > 0) {
             actionMessage += " for " + damageDealt + " damage.";
-            villain.setHealth(villain.getHealth() - damageDealt);
+            villain.takeDamage(damageDealt);
 
         } else {
             actionMessage += " but does no damage.";
@@ -37,18 +36,14 @@ public class GameState extends ZookeeperData{
 
     public void defend() {
         Player player = players.get(currentPlayer);
-
-        int newDefense = player.getDefense() + 10;
         actionMessage = player.getName() + " defends and gains 10 defense power.";
-
-        player.setDefense(newDefense);
+        player.defend();
     }
 
     public void reload() {
         Player player = players.get(currentPlayer);
         actionMessage = player.getName() + " has reloaded.";
-
-        player.setAmmo(6);
+        player.reload();
     }
 
     @Override

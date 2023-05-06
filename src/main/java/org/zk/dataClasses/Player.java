@@ -1,33 +1,26 @@
 package org.zk.dataClasses;
 
-import java.util.ArrayList;
-
 public class Player extends ZookeeperData {
 
-    private PlayerType type;
-    private String name;
+    private final String name;
     private int health;
-    private int attack;
+    private final int attack;
     private int defense;
     private int ammo;
     private boolean isAlive;
 
-    public Player(int type) {
-        this.type = PlayerType.values()[type];
-        this.name = this.type.getName();
-        this.health = this.type.getHealth();
-        this.attack = this.type.getAttack();
-        this.defense = this.type.getDefense();
+    public Player(int typeNumber) {
+        PlayerType type = PlayerType.values()[typeNumber];
+        this.name = type.getName();
+        this.health = type.getMaxHealth();
+        this.attack = type.getMaxAttack();
+        this.defense = type.getMaxDefense();
         this.ammo = 6;
         this.isAlive = true;
     }
 
     public String getName() {
         return name;
-    }
-
-    public int getHealth() {
-        return health;
     }
 
     public int getAttack() {
@@ -38,20 +31,21 @@ public class Player extends ZookeeperData {
         return defense;
     }
 
-    public void setHealth(int health) {
-        this.health = health;
+    public void takeDamage(int damage) {
+        health = health - damage;
+
+        if (health <= 0) {
+            isAlive = false;
+            health = 0;
+        }
     }
 
-    public void setAttack(int attack) {
-        this.attack = attack;
+    public void defend() {
+        defense += 10;
     }
 
-    public void setDefense(int defense) {
-        this.defense = defense;
-    }
-
-    public void setAmmo(int ammo) {
-        this.ammo = ammo;
+    public void reload() {
+        this.ammo = 6;
     }
 
     @Override
