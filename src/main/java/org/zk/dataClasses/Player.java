@@ -31,6 +31,10 @@ public class Player extends ZookeeperData {
         return defense;
     }
 
+    public boolean isAlive() {
+        return isAlive;
+    }
+
     public void takeDamage(int damage) {
         health = health - damage;
 
