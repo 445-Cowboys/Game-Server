@@ -59,7 +59,7 @@ public class RequestHandler implements Runnable{
         gs.addPlayer(0);
 
         // pretend we got an attack packet from the client
-        gs.attack();
+        gs.attack(3);
 
         // pretend we got a defend packet from the client
         gs.defend();
@@ -71,6 +71,5 @@ public class RequestHandler implements Runnable{
         if (gs.getCurrentPlayer() == 3) {
             gs.bossTurn();
         }
-
     }
 }
