@@ -15,8 +15,8 @@ public class GameState extends ZookeeperData {
         this.players[3] = new Player(Character.getRandomBoss());
     }
 
-    public void addPlayer(int type) {
-        players[numPlayers] = new Player(Character.getPlayer(type));
+    public void addPlayer() {
+        players[numPlayers] = new Player(Character.getPlayer(numPlayers));
         numPlayers++;
     }
 

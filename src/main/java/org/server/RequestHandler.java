@@ -57,7 +57,7 @@ public class RequestHandler implements Runnable{
         GameState gs = Main.zkClient.getGameState(0);
 
         // pretend we got new player packets from the client
-        gs.addPlayer(0);
+        gs.addPlayer();
 
         // pretend we got an attack packet from the client
         gs.attack(3);
