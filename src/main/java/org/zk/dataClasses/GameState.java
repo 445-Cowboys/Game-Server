@@ -1,7 +1,5 @@
 package org.zk.dataClasses;
 
-import java.util.ArrayList;
-
 public class GameState extends ZookeeperData {
 
     private final Player[] players;
