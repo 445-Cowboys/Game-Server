@@ -2,24 +2,65 @@ package org.zk.dataClasses;
 
 public enum Character {
 
-    LONE_RANGER("Lone Ranger",
+    THE_MAN_WITH_SOME_NAME("The Man With Some Name",
             10, 10, 100, 6,
-            "unloads his justice on you",
-            "shields himself with his hat",
-            "reloads his six-shooter in a blink",
-            "takes a bullet to the knee",
+            "shoots %p with his revolver",
+            "takes a swig of whiskey and gains %d defense",
+            "reloads his revolver",
+            "takes a shot worth %d damage",
             "is out of ammo"),
 
+    ONE_THOUSAND_GRIT_SANDPAPER("1000 Grit Sandpaper",
+            10, 10, 100, 6,
+            "shoots %p with his sandpaper shooter",
+            "puts on a new layer of sandpaper and gains %d defense",
+            "reloads his sandpaper shooter",
+            "gets a paper cut for %d damage",
+            "is out of sandpaper"),
+
+    JANGO_THE_LIBERATOR("Jango the Liberator",
+            10, 10, 100, 6,
+            "shoots %p with his blaster",
+            "gains %d defense from his blaster shield",
+            "reloads his blaster",
+            "endures %d damage",
+            "is out of blaster ammo"),
+
     DOUG_LEA("Doug Lea",
-            10, 10, 100, 5,
+            10, 10, 100, 6,
             "shoots %p with two shotguns at once",
             "escapes into a thread for an extra %d defense",
             "reloads his shotguns in parallel",
             "drops %d of his packets",
-            "has run out of threads");
+            "has run out of threads"),
 
-    private static final Character[] players = { LONE_RANGER };
-    private static final Character[] bosses = { DOUG_LEA };
+    ANTHILL_SUGAR("Anthill Sugar",
+            10, 10, 100, 6,
+            "shoots %p with his ant cannon",
+            "gains %d defense from his ant hill",
+            "reloads his ant cannon",
+            "loses %d ants to the anteater",
+            "is out of ants"),
+
+    DEMON_FEET("Demon Feet",
+            10, 10, 100, 6,
+            "shoots %p with his demon gun",
+            "gains %d defense from his cursed feet",
+            "reloads his demon gun",
+            "gets hit with %d holy damage",
+            "is out of demonic power");
+
+    private static final Character[] players = {
+            THE_MAN_WITH_SOME_NAME,
+            ONE_THOUSAND_GRIT_SANDPAPER,
+            JANGO_THE_LIBERATOR
+    };
+
+    private static final Character[] bosses = {
+            DOUG_LEA,
+            ANTHILL_SUGAR,
+            DEMON_FEET
+    };
 
     private final String name;
     private final int maxAttack;

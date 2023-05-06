@@ -43,23 +43,10 @@ public class GameState extends ZookeeperData {
             return;
         }
 
-        ArrayList<String> messages = new ArrayList<>();
-
-        for (int i = 0; i < 3; i++) {
-            if (players[i].getHealth() > 0) {
-                attack();
-
-                currentPlayer = 3;
-                messages.add(actionMessage);
-
-                if (boss.getAmmo() == 0) { break; }
-            }
-        }
-
-        actionMessage = String.join("\n", messages);
+        attack((int) Math.floor(Math.random() * 3));
     }
 
-    public void attack() {
+    public void attack(int target) {
         Player player = players[currentPlayer];
         currentPlayer = currentPlayer + 1 % 4;
 
@@ -68,7 +55,7 @@ public class GameState extends ZookeeperData {
             return;
         }
 
-        Player boss = players[3];
+        Player boss = players[target];
         int damageDealt = player.shoot(boss);
 
         actionMessage = player.getShootMessage(boss.getName()) + "\n" + boss.getDamageMessage(damageDealt);
