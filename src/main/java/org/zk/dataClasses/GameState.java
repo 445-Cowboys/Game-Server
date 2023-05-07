@@ -6,11 +6,13 @@ public class GameState extends ZookeeperData {
     private int numPlayers;
     private int currentPlayer;
     private String actionMessage;
+    private boolean hasStarted;
 
     public GameState() {
         this.players = new Player[4];
         this.numPlayers = 0;
         this.currentPlayer = 0;
+        this.hasStarted = false;
 
         this.players[3] = new Player(Character.getRandomBoss());
     }
@@ -26,6 +28,14 @@ public class GameState extends ZookeeperData {
 
     public String getActionMessage() {
         return actionMessage;
+    }
+
+    public boolean hasStarted() {
+        return hasStarted;
+    }
+
+    public void startGame() {
+        hasStarted = true;
     }
 
     public void bossTurn() {
