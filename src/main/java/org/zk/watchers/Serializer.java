@@ -5,7 +5,6 @@ import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.zk.dataClasses.ZookeeperData;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
 public class Serializer implements ZkSerializer {

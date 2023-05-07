@@ -1,4 +1,4 @@
-package org.server.packets.packets;
+package org.server.packets;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;

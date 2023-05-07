@@ -334,6 +334,10 @@ public class ZookeeperClient {
             isLeader.set(true);
             //spin up a thread that will send heartbeats to the clients every thirty seconds
             new Thread(new ClientWatcher(delay)).start();
+            zkClient.subscribeDataChanges("/game-rooms/1", new GameStateChangeListener());
+            zkClient.subscribeDataChanges("/game-rooms/2", new GameStateChangeListener());
+            zkClient.subscribeDataChanges("/game-rooms/3", new GameStateChangeListener());
+            zkClient.subscribeDataChanges("/player-count", new ClientCountChangeListener());
         } catch (ZkNodeExistsException e) {
             System.out.println("Leader already made: "+getLeaderNode().getAddress());
         }

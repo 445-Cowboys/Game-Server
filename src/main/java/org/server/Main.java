@@ -17,16 +17,6 @@ public class Main {
         zkClient.registerLeaderChangeWatcher("/election", new LeaderChangeListener());
         //the value at args[1] is the IP and port that the server is listening on
         zkClient.electLeader(15_000);
-        //This forever loop will always listen for input from a client, it will never stop unless the server crashes
-        //unceremoniously
-        //arg[1] has our IP address (will always be listening on port 7806)
-//        zkClient.getWriteLock("/election");
-//        Thread.sleep(90000);
-//        zkClient.releaseWriteLock("/election");
-
-//        zkClient.getReadLock("/election");
-//        Thread.sleep(60000);
-//        zkClient.releaseReadLock("/election");
         DatagramChannel channel = DatagramChannel.open().bind(new InetSocketAddress(args[1], 7086));
         for(;;){
             //listen for messages sent to this server, pass along the message to a request handler
