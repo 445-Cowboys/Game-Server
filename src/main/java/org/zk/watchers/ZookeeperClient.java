@@ -51,7 +51,7 @@ public class ZookeeperClient {
         //and we should reset all the values that we have.
         //we make the indicator of the server ephermal since we want it to go away when the server crashes
         if(zkClient.getChildren("/live-servers").size() != 0){
-            zkClient.createEphemeral("/live-servers/"+ ThreadLocalRandom.current().nextInt());
+            zkClient.createEphemeral("/live-servers/"+ id);
             return;
         }
 
