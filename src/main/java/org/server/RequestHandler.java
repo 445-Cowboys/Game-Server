@@ -59,6 +59,9 @@ public class RequestHandler implements Runnable{
         // pretend we got new player packets from the client
         gs.addPlayer();
 
+        // pretend we got a start packet from the client
+        if (!gs.hasStarted()) { gs.startGame(); }
+
         // pretend we got an attack packet from the client
         gs.attack(3);
 

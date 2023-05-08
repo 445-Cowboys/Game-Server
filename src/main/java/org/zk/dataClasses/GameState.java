@@ -67,6 +67,10 @@ public class GameState extends ZookeeperData {
         int damageDealt = player.shoot(boss);
 
         actionMessage = player.getShootMessage(boss.getName()) + "\n" + boss.getDamageMessage(damageDealt);
+
+        if (boss.getHealth() <= 0) {
+            actionMessage += "\n" + boss.getDeathMessage();
+        }
     }
 
     public void defend() {

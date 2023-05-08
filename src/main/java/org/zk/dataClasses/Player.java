@@ -13,6 +13,7 @@ public class Player extends ZookeeperData {
     private final String reloadMessage;
     private final String damageMessage;
     private final String noAmmoMessage;
+    private final String deathMessage;
 
     public Player(Character type) {
         this.name = type.getName();
@@ -26,6 +27,7 @@ public class Player extends ZookeeperData {
         this.reloadMessage = type.getReloadMessage();
         this.damageMessage = type.getDamageMessage();
         this.noAmmoMessage = type.getNoAmmoMessage();
+        this.deathMessage = type.getDeathMessage();
     }
 
     public String getName() {
@@ -85,6 +87,10 @@ public class Player extends ZookeeperData {
 
     public String getNoAmmoMessage() {
         return name + noAmmoMessage;
+    }
+
+    public String getDeathMessage() {
+        return name + deathMessage;
     }
 
     @Override
