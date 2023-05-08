@@ -69,10 +69,12 @@ public class RequestHandler implements Runnable{
                 //remove the IP from the list of clients
                 break;
             //Enter game room packet
-            case 3:
+            case 9:
                 //if the game is currently not in session & there are less than three people, allow access.
                 //otherwise deny entry
                 //send an ack with the success or fail
+                ByteBuffer ackBuf = new Factory().makeEnterRoomAckPacket(false);
+                channel.send(ackBuf, client);
                 break;
             default:
                 break;
