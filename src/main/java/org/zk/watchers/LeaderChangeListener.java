@@ -11,7 +11,7 @@ public class LeaderChangeListener implements IZkChildListener {
     /**
      *
      * @param parentPath the location of the parent directory
-     * @param children the leader node, will be empty if the leader is gone
+     * @param children the leader node will be empty if the leader is gone
      * @throws Exception
      */
     @Override
