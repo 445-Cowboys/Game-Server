@@ -2,38 +2,41 @@ package org.server.packets;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 
 public class MainTest {
 
     public static void main(String args[]){
 
+        /********************************
+         * Test heartBeat packet
+
         ByteBuffer hb = new Factory().makeHeartbeatAckPacket();
         HeartbeatAck hba = new HeartbeatAck(hb);
 
         System.out.println(hba.getOpcode());
 
+         */
+
         /********************************
          * Test Game Start packet
          *
-         *
-        try {
-            SecretKey symmetricKey = generateSymmetricKey();
-            //System.out.println(symmetricKey.getEncoded());
 
-            ByteBuffer gsPack = new Factory().makeGameStartPacket(1, symmetricKey);
+            byte[] symmetricKey = new byte[12];
+            //System.out.println(symmetricKey.getEncoded());
+            ByteBuffer buffer = ByteBuffer.allocate
+            ByteBuffer gsPack = new Factory().makeGameStartPacket(30, 30, 30, symmetricKey);
             GameStart gs = new GameStart(gsPack);
 
             System.out.println(gs.getOpcode());
             System.out.println(gs.getCharacter());
-            SecretKey symmetricKeyReturn = gs.getSymmetricKey();
-            System.out.println(symmetricKeyReturn.equals(symmetricKey));
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+            System.out.println(gs.getBossNum());
+            System.out.println(gs.getGameRoom());
+            symmetricKey = gs.getSymmetricKey();
+            int smk = (int) symmetricKey;
+            System.out.println(buffer.getInt(symmetricKey));
          */
+
         /********************************
          * Test Game Rooms packet
          *

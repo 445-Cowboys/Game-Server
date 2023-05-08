@@ -138,9 +138,9 @@ public class ZookeeperClient {
     public int checkServerStatus(String id){
         if(zkClient.exists("/live-servers/"+id)){
             if(getLeaderNode().getAddress().equals(id)){
-                return 2;
+                return 1;
             }
-            return 1;
+            return 2;
         }
         return 0;
     }

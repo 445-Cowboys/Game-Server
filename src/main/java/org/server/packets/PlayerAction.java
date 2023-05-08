@@ -6,16 +6,15 @@ public class PlayerAction extends Packet{
 
     /*
 
-    08 <Game room number> 0 <Action type> 0 <player you heal if action is type 3 and your attribute is a healer>
+    08 <Game room number> 0 <Action type> 0 < Player Number >
 
     */
 
     private final int gameRoom;
-
     private final int action;
-
-    private final int heal;
+    private final int playerNum;
     private final byte[] data;
+
 
     public PlayerAction(ByteBuffer buffer) {
         int totalLength = buffer.limit();
@@ -24,10 +23,7 @@ public class PlayerAction extends Packet{
             buffer.rewind();
             this.gameRoom = buffer.getInt(1);
             this.action = buffer.getInt(6);
-
-            //If not a healer this should always be 0,
-            //if using healer ability the player number will be listed.
-            this.heal = buffer.getInt(11);
+            this.playerNum = buffer.getInt(11);
     }
 
     @Override
@@ -43,8 +39,8 @@ public class PlayerAction extends Packet{
         return action;
     }
 
-    public int getHeal(){
-        return heal;
+    public int getPlayerNum(){
+        return playerNum;
     }
 
 }
