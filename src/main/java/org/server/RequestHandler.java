@@ -69,7 +69,7 @@ public class RequestHandler implements Runnable{
                 //remove the IP from the list of clients
                 break;
             //Enter game room packet
-            case 9:
+            case 7:
                 //if the game is currently not in session & there are less than three people, allow access.
                 //otherwise deny entry
                 //send an ack with the success or fail
