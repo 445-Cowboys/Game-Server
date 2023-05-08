@@ -18,6 +18,7 @@ public class LeaderChangeListener implements IZkChildListener {
     public void handleChildChange(String parentPath, List<String> children) throws Exception {
         if(children.isEmpty()){
             System.out.println("Leader disconnected, reelecting leader");
+            System.out.println(Thread.currentThread().getId());
             try{
                 //set it so that there is no delay in sending heartbeat acks, we only want an initial delay
                 //if this is the first time the servers start up.

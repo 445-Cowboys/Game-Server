@@ -17,11 +17,12 @@ public class Main {
         zkClient.registerLeaderChangeWatcher("/election", new LeaderChangeListener());
         //the value at args[1] is the IP and port that the server is listening on
         zkClient.electLeader(15_000);
-        DatagramChannel channel = DatagramChannel.open().bind(new InetSocketAddress(args[1], 7086));
-        for(;;){
-            //listen for messages sent to this server, pass along the message to a request handler
-            ByteBuffer data = ByteBuffer.allocate(1024);
-            new Thread(new RequestHandler(channel.receive(data), data)).start();
-        }
+        for(;;){}
+//        DatagramChannel channel = DatagramChannel.open().bind(new InetSocketAddress(args[1], 7086));
+//        for(;;){
+//            //listen for messages sent to this server, pass along the message to a request handler
+//            ByteBuffer data = ByteBuffer.allocate(1024);
+//            new Thread(new RequestHandler(channel.receive(data), data)).start();
+//        }
     }
 }

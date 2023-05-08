@@ -48,21 +48,30 @@ public class RequestHandler implements Runnable{
                 //TODO increment client count here
                 channel.send(new Factory().makeGameRooms(new int[]{gfInfo.getGameRoom(0).getSize(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new boolean[]{gfInfo.getGameRoom(0).getRoomIsFull(), gfInfo.getGameRoom(1).getRoomIsFull(), gfInfo.getGameRoom(2).getRoomIsFull()},new int[]{gfInfo.getGameRoom(0).getState(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new int[]{Main.zkClient.checkServerStatus("moxie.cs.oswego.edu"),Main.zkClient.checkServerStatus("rho.cs.oswego.edu"),Main.zkClient.checkServerStatus("pi.cs.oswego.edu")}), client);
                 break;
-            //Game action packet
-            case 1:
+            //Player action packet
+            case 8:
                 //send an ACK back
+                ByteBuffer buf = ByteBuffer.allocate(1);
+                buf.put((byte)9);
+                buf.flip();
+                channel.send(buf, client);
+                //data is what holds the received packet
                 //TODO modify game state based on the action
                 break;
             //Exit packet
             case 2:
                 //send an ack back
+                buf = ByteBuffer.allocate(1);
+                buf.put((byte)2);
+                buf.flip();
+                channel.send(buf, client);
                 //remove the IP from the list of clients
                 break;
             //Enter game room packet
             case 3:
-                //send an ack back
                 //if the game is currently not in session & there are less than three people, allow access.
                 //otherwise deny entry
+                //send an ack with the success or fail
                 break;
             default:
                 break;
