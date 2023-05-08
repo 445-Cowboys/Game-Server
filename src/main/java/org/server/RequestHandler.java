@@ -101,8 +101,8 @@ public class RequestHandler implements Runnable{
 //        if (gs.getCurrentPlayer() == 3) {
 //            gs.bossTurn();
 //        }
-//
-//        // the message to be sent back to the client
+
+        // the message to be sent back to the client
 //        String actionMessage = gs.getActionMessage();
     }
 }

@@ -43,7 +43,7 @@ public class TestClient {
 
     public static ByteBuffer sendPacket(ByteBuffer packet, DatagramChannel channel) throws IOException {
         //send packet to server
-        channel.send(packet, new InetSocketAddress("moxie.cs.oswego.edu", 7086));
+        channel.send(packet, new InetSocketAddress("localhost", 7086));
         ByteBuffer receivedBuf = ByteBuffer.allocate(1024);
         channel.receive(receivedBuf);
         //do nothing with the ack,we don't really care what it says rn we are more worried about how the server
