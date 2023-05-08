@@ -208,7 +208,7 @@ public class ZookeeperClient {
      */
     public void addPlayerToLobby(String playerAddress){
         //add the new address to the list of waiting clients
-        zkClient.createPersistent("/lobby/waiting-clients/"+playerAddress);
+        zkClient.createPersistent("/lobby/waiting-clients"+playerAddress);
         //increment the player count
         getWriteLock("/player-count");
         zkClient.writeData("/player-count", ((PlayerCount) zkClient.readData("/player-count")).increment());

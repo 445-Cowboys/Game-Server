@@ -40,6 +40,7 @@ public class RequestHandler implements Runnable{
     public void packetHandler() throws IOException {
         //arbitrarily picked 500
         ByteBuffer ackPacket = ByteBuffer.allocate(500);
+        System.out.println("got somethin");
         switch ((int) data.get(0)){
             case 20:
                 System.out.println("Received an initial awake connection from " + client);

@@ -21,6 +21,7 @@ public class Main {
         for(;;){
             //listen for messages sent to this server, pass along the message to a request handler
             ByteBuffer data = ByteBuffer.allocate(1024);
+            System.out.println("asdf");
             new Thread(new RequestHandler(channel.receive(data), data)).start();
         }
     }
