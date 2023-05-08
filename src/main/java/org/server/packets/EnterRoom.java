@@ -1,15 +1,17 @@
-package org.server.packets.packets;
+package org.server.packets;
 
 import java.nio.ByteBuffer;
 
 public class EnterRoom extends Packet {
 
     /*
-    07 <Room they are entering> 0 <String of username>
+    07 <Room they are entering> 0 <Port Number of Client> 0 <String of username>
     */
 
     private final byte[] data;
     private final int roomNum;
+
+    private final int portNum;
     private final String userName;
 
 
@@ -21,7 +23,10 @@ public class EnterRoom extends Packet {
         buffer.rewind();
         this.roomNum = buffer.getInt(1);
         int offset = 6;
-
+        buffer.position(offset);
+        this.portNum = buffer.getInt(offset);
+        offset = 11;
+        buffer.position(offset);
         byte[] userNameBytes = new byte[totalLength - offset];
         buffer.position(offset);
         buffer.get(userNameBytes, 0, userNameBytes.length);
@@ -37,6 +42,10 @@ public class EnterRoom extends Packet {
 
     public int getRoomNum(){
         return roomNum;
+    }
+
+    public int getPortNum() {
+        return portNum;
     }
 
     public String getuserName(){

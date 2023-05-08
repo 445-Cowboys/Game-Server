@@ -29,18 +29,24 @@ public class ClientWatcher implements Runnable{
                 List<String> waitingLobbyClients = Main.zkClient.getWaitingClients();
                 for(String client:waitingLobbyClients){
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
+                    if(client.contains("read-lock") || client.contains("write-lock"))
+                        continue;
                     new Thread(new HeartBeat(client, 0)).start();
                 }
                 //do the same thing for the players in the game rooms
                 List<String>waitingGamePlayers0 = Main.zkClient.getWaitingGameClients(0);
                 for(String client:waitingGamePlayers0){
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
+                    if(client.contains("read-lock") || client.contains("write-lock"))
+                        continue;
                     new Thread(new HeartBeat(client, 1)).start();
                 }
 
                 List<String>waitingGamePlayers1 = Main.zkClient.getWaitingGameClients(1);
                 for(String client:waitingGamePlayers1){
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
+                    if(client.contains("read-lock") || client.contains("write-lock"))
+                        continue;
                     new Thread(new HeartBeat(client, 1)).start();
                 }
 
@@ -53,18 +59,24 @@ public class ClientWatcher implements Runnable{
                 List<String>activeGamePlayers0 = Main.zkClient.getGameClients(0);
                 for(String client:activeGamePlayers0){
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
+                    if(client.contains("read-lock") || client.contains("write-lock"))
+                        continue;
                     new Thread(new HeartBeat(client, 1)).start();
                 }
 
                 List<String>activeGamePlayers1 = Main.zkClient.getGameClients(1);
                 for(String client:activeGamePlayers1){
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
+                    if(client.contains("read-lock") || client.contains("write-lock"))
+                        continue;
                     new Thread(new HeartBeat(client, 1)).start();
                 }
 
                 List<String>activeGamePlayers2 = Main.zkClient.getGameClients(2);
                 for(String client:activeGamePlayers2){
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
+                    if(client.contains("read-lock") || client.contains("write-lock"))
+                        continue;
                     new Thread(new HeartBeat(client, 1)).start();
                 }
 
@@ -107,6 +119,7 @@ class HeartBeat implements Runnable{
         try {
             int retryNum=0;
             while(retryNum < 10) {
+                System.out.println(clientAddress);
                 channel.send(buf, new InetSocketAddress(clientAddress.split("/")[0], Integer.parseInt(clientAddress.split("/")[1])));
                 Future<Void> task = executorService.submit(Callable);
                 //and now the channel waits to receive word back from the client
@@ -118,11 +131,13 @@ class HeartBeat implements Runnable{
                     continue;
                 }
                 if ((int) ackBuf.get(0) == -1) {
+                    buf.rewind();
                     channel.close();
                     return;
                 }
                 //if we get here we somehow got a value from somewhere else so just retry without incrementing the retry num
             }
+
             //remove this client
             Main.zkClient.deleteNode(clientAddress);
             //TODO decrement total player count here

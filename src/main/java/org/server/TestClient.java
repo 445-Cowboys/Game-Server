@@ -1,7 +1,7 @@
 package org.server;
 
-import org.server.packets.packets.Factory;
-import org.server.packets.packets.GameRooms;
+import org.server.packets.Factory;
+import org.server.packets.GameRooms;
 import org.zk.dataClasses.GameRoom;
 
 import javax.xml.crypto.Data;

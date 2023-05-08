@@ -1,4 +1,4 @@
-package org.server.packets.packets;
+package org.server.packets;
 
 import java.nio.ByteBuffer;
 
@@ -23,6 +23,6 @@ public class HeartbeatAck extends Packet {
 
     @Override
     public int getOpcode(){
-        return opcode;
+        return -1;
     }
 }

@@ -3,9 +3,11 @@ package org.zk.watchers;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
-import org.zk.dataClasses.*;
+import org.zk.dataClasses.GameRoomsInfo;
+import org.zk.dataClasses.GameState;
+import org.zk.dataClasses.PlayerCount;
+import org.zk.dataClasses.ServerData;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -49,7 +51,7 @@ public class ZookeeperClient {
         //and we should reset all the values that we have.
         //we make the indicator of the server ephermal since we want it to go away when the server crashes
         if(zkClient.getChildren("/live-servers").size() != 0){
-            zkClient.createEphemeral("/live-servers/"+id);
+            zkClient.createEphemeral("/live-servers/"+ ThreadLocalRandom.current().nextInt());
             return;
         }
 
@@ -70,7 +72,8 @@ public class ZookeeperClient {
         }else{
             getWriteLock("/lobby/waiting-clients");
             for(String client:zkClient.getChildren("/lobby/waiting-clients"))
-                zkClient.delete("lobby/waiting-clients/"+client);
+                if(!client.contains("write-lock"))
+                    zkClient.delete("/lobby/waiting-clients/"+client);
             releaseWriteLock("/lobby/waiting-clients");
         }
 
@@ -91,6 +94,18 @@ public class ZookeeperClient {
             zkClient.createPersistent("/player-count", new PlayerCount());
         }else{
             zkClient.writeData("/player-count", new PlayerCount());
+        }
+
+        if(!zkClient.exists("/game-rooms/0")){
+            zkClient.createPersistent("/game-rooms/0");
+            zkClient.createPersistent("/game-rooms/0/waiting-players");
+            zkClient.createPersistent("/game-rooms/0/live-players");
+        }else{
+            for(String client:zkClient.getChildren("/game-rooms/0/waiting-players"))
+                zkClient.delete("/game-rooms/0/waiting-players/"+client);
+
+            for(String client:zkClient.getChildren("/game-rooms/0/live-players"))
+                zkClient.delete("/game-rooms/0/live-players/"+client);
         }
 
         if(!zkClient.exists("/game-rooms/1")){
@@ -115,18 +130,6 @@ public class ZookeeperClient {
 
             for(String client:zkClient.getChildren("/game-rooms/2/live-players"))
                 zkClient.delete("/game-rooms/2/live-players/"+client);
-        }
-
-        if(!zkClient.exists("/game-rooms/3")){
-            zkClient.createPersistent("/game-rooms/3");
-            zkClient.createPersistent("/game-rooms/3/waiting-players");
-            zkClient.createPersistent("/game-rooms/3/live-players");
-        }else{
-            for(String client:zkClient.getChildren("/game-rooms/3/waiting-players"))
-                zkClient.delete("/game-rooms/3/waiting-players/"+client);
-
-            for(String client:zkClient.getChildren("/game-rooms/3/live-players"))
-                zkClient.delete("/game-rooms/3/live-players/"+client);
         }
 
         zkClient.createEphemeral("/live-servers/"+id);
@@ -177,9 +180,7 @@ public class ZookeeperClient {
      * @return the list of clients currently in a game
      */
     public List<String> getGameClients(int gameRoomNum){
-        getReadLock("/game-rooms/"+gameRoomNum+"/live-players");
         List<String> clients = zkClient.getChildren("/game-rooms/"+gameRoomNum+"/live-players");
-        releaseReadLock("/game-rooms/"+gameRoomNum+"/live-players");
         return clients;
     }
 
@@ -189,9 +190,7 @@ public class ZookeeperClient {
      * @return the list of clients currently in a game
      */
     public List<String> getWaitingGameClients(int gameRoomNum){
-        getReadLock("/game-rooms/"+gameRoomNum+"/waiting-players");
         List<String> clients = zkClient.getChildren("/game-rooms/"+gameRoomNum+"/waiting-players");
-        releaseReadLock("/game-rooms/"+gameRoomNum+"/waiting-players");
         return clients;
     }
 
@@ -282,7 +281,7 @@ public class ZookeeperClient {
         //future use and grab the read lock
         if(!zkClient.exists(path+"/write-lock")){
             zkClient.createPersistent(path+"/write-lock");
-            zkClient.createEphemeralSequential(path+"read-lock/lock-", new ServerData(id));
+            zkClient.createEphemeralSequential(path+"/read-lock/lock-", new ServerData(id));
             return;
         }
         List<String> writers = zkClient.getChildren(path+"/write-lock");
@@ -333,6 +332,10 @@ public class ZookeeperClient {
             isLeader.set(true);
             //spin up a thread that will send heartbeats to the clients every thirty seconds
             new Thread(new ClientWatcher(delay)).start();
+            zkClient.subscribeDataChanges("/game-rooms/1", new GameStateChangeListener());
+            zkClient.subscribeDataChanges("/game-rooms/2", new GameStateChangeListener());
+            zkClient.subscribeDataChanges("/game-rooms/3", new GameStateChangeListener());
+            zkClient.subscribeDataChanges("/player-count", new ClientCountChangeListener());
         } catch (ZkNodeExistsException e) {
             System.out.println("Leader already made: "+getLeaderNode().getAddress());
         }
@@ -356,9 +359,11 @@ public class ZookeeperClient {
     }
 
 
-    public void deleteNode(String path){
+    /**
+     * Delete node at given path
+     * @param path path to delete node
+     */
+    public void deleteNode(String path) {
         zkClient.delete(path);
     }
-
-
 }

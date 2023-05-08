@@ -24,6 +24,6 @@ public class PlayerCount extends ZookeeperData{
 
     @Override
     public byte[] serialize() {
-        return Bytes.concat(new byte[]{Integer.valueOf(7).byteValue(), Integer.valueOf(0).byteValue()}, new byte[]{count.byteValue()});
+        return Bytes.concat(new byte[]{Integer.valueOf(6).byteValue(), Integer.valueOf(0).byteValue()}, new byte[]{count.byteValue()});
     }
 }

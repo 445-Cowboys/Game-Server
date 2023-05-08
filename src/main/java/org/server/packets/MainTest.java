@@ -1,4 +1,4 @@
-package org.server.packets.packets;
+package org.server.packets;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -12,7 +12,7 @@ public class MainTest {
         ByteBuffer hb = new Factory().makeHeartbeatAckPacket();
         HeartbeatAck hba = new HeartbeatAck(hb);
 
-        hba.getOpcode();
+        System.out.println(hba.getOpcode());
 
         /********************************
          * Test Game Start packet
