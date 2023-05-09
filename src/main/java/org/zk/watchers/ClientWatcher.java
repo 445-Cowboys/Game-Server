@@ -142,8 +142,8 @@ class HeartBeat implements Runnable{
             }
 
             //remove this client
-            Main.zkClient.deleteNode("/"+clientAddress);
-            //TODO decrement total player count here
+            Main.zkClient.deleteNode("/"+parentPath+"/"+clientAddress);
+            Main.zkClient.decrementPlayerCount();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

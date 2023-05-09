@@ -18,6 +18,11 @@ public class PlayerCount extends ZookeeperData{
         return this;
     }
 
+    public PlayerCount decrement(){
+        count--;
+        return this;
+    }
+
     public int getCount(){
         return count;
     }

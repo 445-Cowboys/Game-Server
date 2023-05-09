@@ -33,14 +33,9 @@ public abstract class ZookeeperData {
                 AEAD aead = new AEAD();
                 aead.parseKey(dataOfInterest);
                 return new EncryptionKey(aead);
-            case 3:
-                ByteArrayInputStream bais = new ByteArrayInputStream(dataOfInterest);
-                ObjectInputStream ois = new ObjectInputStream(bais);
-                //your IDE will probably throw a warning saying to genrify this but we'll never not put an arraylist of big ints here
-                return new ClientKeys((ArrayList<BigInteger>) ois.readObject());
             case 4:
-                bais = new ByteArrayInputStream(dataOfInterest);
-                ois = new ObjectInputStream(bais);
+               ByteArrayInputStream bais = new ByteArrayInputStream(dataOfInterest);
+                ObjectInputStream ois = new ObjectInputStream(bais);
                 //your IDE will probably throw a warning saying to genrify this but we'll never not put a list of GameRoom objects here
                 return new GameRoomsInfo((List<GameRoom>) ois.readObject());
             case 5:

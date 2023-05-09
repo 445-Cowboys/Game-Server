@@ -12,7 +12,7 @@ public class GameStateChangeListener implements IZkDataListener {
         //get the list of clients who are currently in the game, relay the game state change to them
         //set a read lock on the path so that no one tries to write as we do this, if someone is writing to it as
         //we attempt to read then it is fine, the frame number will be lower than the previous one and the client
-        Main.zkClient.getReadLock(path);
+        int idVal = Main.zkClient.getReadLock(path);
         //will just discard it when we send it, but will still return an ack.
         for(String player: Main.zkClient.getGameClients(Integer.parseInt(path.split("/")[1]))){
             //player will hold the ip and listening port in the format "<IP>/<Port>"
@@ -22,7 +22,7 @@ public class GameStateChangeListener implements IZkDataListener {
             //
         }
         //after the state gets sent to all the children, release the read lock
-        Main.zkClient.releaseReadLock(path);
+        Main.zkClient.releaseReadLock(path, idVal);
     }
 
     @Override

@@ -63,19 +63,19 @@ public class ZookeeperClient {
         if(!zkClient.exists("/lobby/stats")){
             zkClient.createPersistent("/lobby/stats", new GameRoomsInfo());
         }else{
-            getWriteLock("/lobby/stats");
+            int idVal = getWriteLock("/lobby/stats");
             zkClient.writeData("/lobby/stats", new GameRoomsInfo());
-            releaseWriteLock("/lobby/stats");
+            releaseWriteLock("/lobby/stats", idVal);
         }
 
         if(!zkClient.exists("/lobby/waiting-clients")){
             zkClient.createPersistent("/lobby/waiting-clients");
         }else{
-            getWriteLock("/lobby/waiting-clients");
+            int idVal = getWriteLock("/lobby/waiting-clients");
             for(String client:zkClient.getChildren("/lobby/waiting-clients"))
                 if(!client.contains("write-lock"))
                     zkClient.delete("/lobby/waiting-clients/"+client);
-            releaseWriteLock("/lobby/waiting-clients");
+            releaseWriteLock("/lobby/waiting-clients", idVal);
         }
 
         //on game start, we will initialize these values
@@ -169,9 +169,9 @@ public class ZookeeperClient {
      * @return The list of clients currently in the lobby
      */
     public List<String> getWaitingClients(){
-        getReadLock("/lobby/waiting-clients");
+        int idVal = getReadLock("/lobby/waiting-clients");
         List<String> clients = zkClient.getChildren("/lobby/waiting-clients");
-       releaseReadLock("/lobby/waiting-clients");
+       releaseReadLock("/lobby/waiting-clients", idVal);
        return clients;
     }
 
@@ -196,9 +196,9 @@ public class ZookeeperClient {
     }
 
     public GameState getGameState(int gameRoomNum){
-        getReadLock("/game-rooms/"+gameRoomNum);
+        int idVal = getReadLock("/game-rooms/"+gameRoomNum);
         GameState gs = zkClient.readData("/game-rooms/"+gameRoomNum);
-        releaseReadLock("/game-rooms/"+gameRoomNum);
+        releaseReadLock("/game-rooms/"+gameRoomNum, idVal);
         return gs;
     }
 
@@ -212,15 +212,21 @@ public class ZookeeperClient {
         if(zkClient.exists("/lobby/waiting-clients"+playerAddress)) return;
         zkClient.createPersistent("/lobby/waiting-clients"+playerAddress);
         //increment the player count
-        getWriteLock("/player-count");
+        int idVal = getWriteLock("/player-count");
         zkClient.writeData("/player-count", ((PlayerCount) zkClient.readData("/player-count")).increment());
-        releaseWriteLock("/player-count");
+        releaseWriteLock("/player-count", idVal);
+    }
+
+    public void decrementPlayerCount(){
+        int idVal = getWriteLock("/player-count");
+        zkClient.writeData("/player-count", ((PlayerCount) zkClient.readData("/player-count")).decrement());
+        releaseWriteLock("/player-count", idVal);
     }
 
     public int getPlayerCount(){
-        getReadLock("/player-count");
+        int idVal = getReadLock("/player-count");
         PlayerCount pc = zkClient.readData("/player-count");
-        releaseReadLock("/player-count");
+        releaseReadLock("/player-count", idVal);
         return pc.getCount();
     }
 
@@ -230,7 +236,8 @@ public class ZookeeperClient {
      * Get the write lock on a specific znode; once the lock is gotten, the current server is free to write to the specific location
      * @param path the path of the znode we want to modify
      */
-    public void getWriteLock(String path){
+    public int getWriteLock(String path){
+        int id = ThreadLocalRandom.current().nextInt();
         //create the read-lock path if one does not exist already
         if(!zkClient.exists(path+"/read-lock")){
             zkClient.createPersistent(path+"/read-lock");
@@ -254,24 +261,24 @@ public class ZookeeperClient {
         //loop until we are next in line to write and we have no other readers
         //we add the null check in case the current lock holder deletes and we are dealing with old data
         while(curLockHolder==null || !curLockHolder.getAddress().equals(String.valueOf(id)) || numOfReaders!=0){
-            System.out.println("can't write yet");
             numOfReaders = zkClient.getChildren(path+"/read-lock").size();
             writers = zkClient.getChildren(path+"/write-lock");
             writers.sort(String::compareTo);
             curLockHolder = zkClient.readData(path+"/write-lock/"+writers.get(0), true);
         }
-        System.out.println("writing to "+path);
+        return id;
     }
 
     /**
      * Release the write lock
      * @param path the data value location we want to release the lock of
      */
-    public void releaseWriteLock(String path){
+    public void releaseWriteLock(String path, int id){
         for(String child:zkClient.getChildren(path+"/write-lock")){
-            //find the reader we want to get rid of, delete it, and then return.
+            //find the writer we want to get rid of, delete it, and then return.
             if(((ServerData)zkClient.readData(path+"/write-lock/"+child)).getAddress().equals(String.valueOf(id))){
                 zkClient.delete(path+"/write-lock/"+child);
+                System.out.println("write lock released");
                 return;
             }
         }
@@ -283,8 +290,9 @@ public class ZookeeperClient {
      * No writes will happen until there are no more readers
      * @param path the location of the data we want to read
      */
-    public void getReadLock(String path){
+    public int getReadLock(String path){
         //create the initial lock node if one does not exist
+        int id = ThreadLocalRandom.current().nextInt();
         if(!zkClient.exists(path+"/read-lock")){
             zkClient.createPersistent(path+"/read-lock");
         }
@@ -292,13 +300,15 @@ public class ZookeeperClient {
         //future use and grab the read lock
         if(!zkClient.exists(path+"/write-lock")){
             zkClient.createPersistent(path+"/write-lock");
-            zkClient.createEphemeralSequential(path+"/read-lock/lock-", new ServerData(id));
-            return;
+            zkClient.createEphemeralSequential(path+"/read-lock/lock-", new ServerData(String.valueOf(id)));
+            return id;
         }
         List<String> writers = zkClient.getChildren(path+"/write-lock");
         //keep looping here until there are no more writers, once all the writers are gone then we can exit,
         //knowing for sure that only readers exist for the given object
         while(writers.size()!=0){
+            System.out.println(writers.size());
+            System.out.println(writers.get(0));
             writers = zkClient.getChildren(path+"/write-lock");
         }
 
@@ -306,7 +316,8 @@ public class ZookeeperClient {
         //create our ephemeral sequential node. we won't actually use any of the sequential propertiy things, but just use it
         //so that multiple read locks can get allocated
         System.out.println("Now reading "+path);
-        zkClient.createEphemeralSequential(path+"/read-lock/lock-", new ServerData(id));
+        zkClient.createEphemeralSequential(path+"/read-lock/lock-", new ServerData(String.valueOf(id)));
+        return id;
     }
 
 
@@ -314,10 +325,10 @@ public class ZookeeperClient {
      * Releases the read lock of the specified data
      * @param path the location of the data we want to release the read lock of
      */
-    public void releaseReadLock(String path){
+    public void releaseReadLock(String path, int id){
         for(String child:zkClient.getChildren(path+"/read-lock")){
             //find the reader we want to get rid of, delete it, and then return.
-            if(((ServerData)zkClient.readData(path+"/read-lock/"+child)).getAddress().equals(id)){
+            if(((ServerData)zkClient.readData(path+"/read-lock/"+child)).getAddress().equals(String.valueOf(id))){
                 zkClient.delete(path+"/read-lock/"+child);
                 System.out.println("Read lock released!");
                 return;
