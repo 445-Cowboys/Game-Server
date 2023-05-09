@@ -145,6 +145,9 @@ class HeartBeat implements Runnable{
             }
 
             //remove this client
+            if(!parentPath.startsWith("/")){
+                parentPath = "/"+parentPath;
+            }
             Main.zkClient.deleteNode(parentPath+"/"+clientAddress);
             Main.zkClient.decrementPlayerCount();
             //this client was a waiting client for a game,
