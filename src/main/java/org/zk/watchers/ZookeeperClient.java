@@ -386,6 +386,7 @@ public class ZookeeperClient {
             zkClient.subscribeDataChanges("/game-rooms/2", new GameStateChangeListener());
             zkClient.subscribeDataChanges("/game-rooms/3", new GameStateChangeListener());
             zkClient.subscribeDataChanges("/player-count", new ClientCountChangeListener());
+            zkClient.subscribeDataChanges("/lobby/stats", new LobbyStatsWatcher());
         } catch (ZkNodeExistsException e) {
             System.out.println("Leader already made: "+getLeaderNode().getAddress());
         }

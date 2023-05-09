@@ -85,7 +85,7 @@ public class RequestHandler implements Runnable{
                     Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
                     Main.zkClient.releaseWriteLock("/lobby/stats", lockID);
                     Main.zkClient.decrementPlayerCount();
-                } //next would be clauses for the live players
+                } //next would be clauses for the live players, we would kill them in their game and remove them from the list of live players
                 //Player action packet
             case 8:
                 //send an ACK back
