@@ -13,6 +13,7 @@ public class ClientCountChangeListener implements IZkDataListener {
         //cast o to player count type
         long curTime = System.nanoTime();
         ByteBuffer pcBuf = new Factory().makePlayerCountPacket(((PlayerCount) o).getCount(), curTime);
+
         //go through the list of clients in lobby, we only relay client count to the lobby screen so
         //for each in the lobby or a waiting for game to start state, send them the new lobby info now that
         //more people have joined
@@ -20,7 +21,19 @@ public class ClientCountChangeListener implements IZkDataListener {
             if(clientID.contains("write-lock")||clientID.contains("read-lock")) continue;
             new Thread(new PacketSender(clientID, 10, "/lobby/waiting-clients/"+clientID, pcBuf)).start();
         }
+        for(String clientID:Main.zkClient.getWaitingGameClients(0)){
+            if(clientID.contains("write-lock")||clientID.contains("read-lock")) continue;
+            new Thread(new PacketSender(clientID, 10, "/game-rooms/0/waiting-players/"+clientID, pcBuf)).start();
+        }
 
+        for(String clientID:Main.zkClient.getWaitingGameClients(1)){
+            if(clientID.contains("write-lock")||clientID.contains("read-lock")) continue;
+            new Thread(new PacketSender(clientID, 10, "/game-rooms/1/waiting-players/"+clientID, pcBuf)).start();
+        }
+        for(String clientID:Main.zkClient.getWaitingGameClients(2)){
+            if(clientID.contains("write-lock")||clientID.contains("read-lock")) continue;
+            new Thread(new PacketSender(clientID, 10, "/game-rooms/2/waiting-players/"+clientID, pcBuf)).start();
+        }
     }
 
     @Override

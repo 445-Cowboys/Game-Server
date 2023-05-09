@@ -149,7 +149,7 @@ public class Factory {
     }
 
     public ByteBuffer makePlayerCountPacket(int playerCount, long updateTime){
-        ByteBuffer buffer = ByteBuffer.allocate(6);
+        ByteBuffer buffer = ByteBuffer.allocate(14);
         buffer.put((byte) 0x0A);
         buffer.put((byte) 0);
         buffer.putInt(playerCount);
