@@ -291,7 +291,7 @@ public class ZookeeperClient {
             numOfReaders = zkClient.getChildren(path+"/read-lock").size();
             writers = zkClient.getChildren(path+"/write-lock");
             writers.sort(String::compareTo);
-            curLockHolder = zkClient.readData(path+"/write-lock/"+writers.get(0), true);
+            curLockHolder = path+"/write-lock/"+writers.get(0);
         }
         return id;
     }
