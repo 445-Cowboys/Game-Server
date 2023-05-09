@@ -4,7 +4,6 @@ public class Player extends ZookeeperData {
 
     private final String name;
     private final int attack;
-    private int defense;
     private int health;
     private final int maxAmmo;
     private int ammo;
@@ -18,7 +17,6 @@ public class Player extends ZookeeperData {
     public Player(Character type) {
         this.name = type.getName();
         this.attack = type.getMaxAttack();
-        this.defense = type.getMaxDefense();
         this.health = type.getMaxHealth();
         this.maxAmmo = type.getMaxAmmo();
         this.ammo = type.getMaxAmmo();
@@ -34,10 +32,6 @@ public class Player extends ZookeeperData {
         return name;
     }
 
-    public int getDefense() {
-        return defense;
-    }
-
     public int getHealth() {
         return health;
     }
@@ -47,17 +41,15 @@ public class Player extends ZookeeperData {
     }
 
     public int shoot(Player player) {
-        int damageDealt = attack - player.getDefense();
-        if (damageDealt < 0) { damageDealt = 0; }
+        int damageDealt = attack;
+        if (player.getHealth() - damageDealt < 0) {
+            damageDealt = player.getHealth();
+        }
 
         player.takeDamage(damageDealt);
         ammo--;
 
         return damageDealt;
-    }
-
-    public void upDefense(int amount) {
-        defense += amount;
     }
 
     public void takeDamage(int damageDealt) {

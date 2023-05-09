@@ -3,7 +3,7 @@ package org.zk.dataClasses;
 public enum Character {
 
     THE_MAN_WITH_SOME_NAME("The Man With Some Name",
-            10, 10, 100, 6,
+            10, 100, 6,
             "shoots %p with his revolver",
             "takes a swig of whiskey and gains %d defense",
             "reloads his revolver",
@@ -12,7 +12,7 @@ public enum Character {
             "succumbs to his wounds"),
 
     ONE_THOUSAND_GRIT_SANDPAPER("1000 Grit Sandpaper",
-            10, 10, 100, 6,
+            10, 100, 6,
             "shoots %p with his sandpaper shooter",
             "puts on a new layer of sandpaper and gains %d defense",
             "reloads his sandpaper shooter",
@@ -21,7 +21,7 @@ public enum Character {
             "is covered in paper cuts and dies"),
 
     JANGO_THE_LIBERATOR("Jango the Liberator",
-            10, 10, 100, 6,
+            10, 100, 6,
             "shoots %p with his blaster",
             "gains %d defense from his blaster shield",
             "reloads his blaster",
@@ -30,7 +30,7 @@ public enum Character {
             "is killed by a stray blaster bolt"),
 
     DOUG_LEA("Doug Lea",
-            10, 10, 100, 6,
+            10, 100, 6,
             "shoots %p with two shotguns at once",
             "escapes into a thread for an extra %d defense",
             "reloads his shotguns in parallel",
@@ -39,7 +39,7 @@ public enum Character {
             "is killed by a thread deadlock"),
 
     ANTHILL_SUGAR("Anthill Sugar",
-            10, 10, 100, 6,
+            10, 100, 6,
             "shoots %p with his ant cannon",
             "gains %d defense from his ant hill",
             "reloads his ant cannon",
@@ -48,7 +48,7 @@ public enum Character {
             "is eaten by an anteater"),
 
     DEMON_FEET("Demon Feet",
-            10, 10, 100, 6,
+            10, 100, 6,
             "shoots %p with his demon gun",
             "gains %d defense from his cursed feet",
             "reloads his demon gun",
@@ -70,7 +70,6 @@ public enum Character {
 
     private final String name;
     private final int maxAttack;
-    private final int maxDefense;
     private final int maxHealth;
     private final int maxAmmo;
     private final String shootMessage;
@@ -81,7 +80,7 @@ public enum Character {
     private final String deathMessage;
 
     Character(String name,
-              int maxAttack, int maxDefense, int maxHealth, int maxAmmo,
+              int maxAttack, int maxHealth, int maxAmmo,
               String shootMessage,
               String defendMessage,
               String reloadMessage,
@@ -91,7 +90,6 @@ public enum Character {
 
         this.name = name;
         this.maxAttack = maxAttack;
-        this.maxDefense = maxDefense;
         this.maxHealth = maxHealth;
         this.maxAmmo = maxAmmo;
         this.shootMessage = shootMessage;
@@ -116,10 +114,6 @@ public enum Character {
 
     public int getMaxAttack() {
         return maxAttack;
-    }
-
-    public int getMaxDefense() {
-        return maxDefense;
     }
 
     public int getMaxHealth() {

@@ -41,11 +41,6 @@ public class GameState extends ZookeeperData {
     public void bossTurn() {
         Player boss = players[3];
 
-        if ((int) Math.floor(Math.random() * 4) == 3) {
-            defend();
-            return;
-        }
-
         if (boss.getAmmo() == 0) {
             reload();
             return;
@@ -71,15 +66,6 @@ public class GameState extends ZookeeperData {
         if (boss.getHealth() <= 0) {
             actionMessage += "\n" + boss.getDeathMessage();
         }
-    }
-
-    public void defend() {
-        Player player = players[currentPlayer];
-        currentPlayer = currentPlayer + 1 % 4;
-
-        player.upDefense(10);
-
-        actionMessage = player.getDefendMessage(10);
     }
 
     public void reload() {
