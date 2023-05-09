@@ -154,12 +154,12 @@ class HeartBeat implements Runnable{
             if(parentPath.contains("waiting-players")){
                 //get the room number
                 int roomNum = Integer.parseInt(parentPath.split("/")[2]);
-                int lockID = Main.zkClient.getWriteLock("/lobby/stats");
+                String lockID = Main.zkClient.getWriteLock("/lobby/stats");
                 //go into the room number of the lobby and decrement the number
                 GameRoomsInfo gameRoomsInfo = Main.zkClient.getGameRoomsInfo();
                 gameRoomsInfo.removePlayer(roomNum);
                 Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
-                Main.zkClient.releaseWriteLock("/lobby/stats", lockID);
+                Main.zkClient.releaseWriteLock(lockID);
             } else if (parentPath.contains("live-players")) {
                 //remove them from the total count in the game room number in the lobby and kill them in the game
             }

@@ -41,7 +41,7 @@ public class RequestHandler implements Runnable{
     public void packetHandler() throws IOException {
         //arbitrarily picked 500
         ByteBuffer ackPacket = ByteBuffer.allocate(500);
-        System.out.println("got somethin");
+        System.out.println((int) data.get(0));
         int port_num;
         switch ((int) data.get(0)){
             case 20:
@@ -54,36 +54,38 @@ public class RequestHandler implements Runnable{
                 break;
                 //leave request
             case -5:
+                System.out.println("Leave packet received.");
                 port_num = data.getInt(1);
-                if(Main.zkClient.pathExists("/lobby/stats"+client.toString().split(":")[0]+":"+port_num)) {
+                System.out.println(client.toString().split(":")[0]+":"+port_num);
+                if(Main.zkClient.pathExists("/lobby/waiting-clients"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromLobby(client.toString().split(":")[0] + ":" + port_num);
                     Main.zkClient.decrementPlayerCount();
                 } else if (Main.zkClient.pathExists("/game-rooms/0/waiting-players"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 0);
-                    int lockID = Main.zkClient.getWriteLock("/lobby/stats");
+                    String lockID = Main.zkClient.getWriteLock("/lobby/stats");
                     //go into the room number of the lobby and decrement the number
                     GameRoomsInfo gameRoomsInfo = Main.zkClient.getGameRoomsInfo();
                     gameRoomsInfo.removePlayer(0);
                     Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
-                    Main.zkClient.releaseWriteLock("/lobby/stats", lockID);
+                    Main.zkClient.releaseWriteLock(lockID);
                     Main.zkClient.decrementPlayerCount();
                 } else if (Main.zkClient.pathExists("/game-rooms/1/waiting-players"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 1);
-                    int lockID = Main.zkClient.getWriteLock("/lobby/stats");
+                    String lockID = Main.zkClient.getWriteLock("/lobby/stats");
                     //go into the room number of the lobby and decrement the number
                     GameRoomsInfo gameRoomsInfo = Main.zkClient.getGameRoomsInfo();
                     gameRoomsInfo.removePlayer(1);
                     Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
-                    Main.zkClient.releaseWriteLock("/lobby/stats", lockID);
+                    Main.zkClient.releaseWriteLock(lockID);
                     Main.zkClient.decrementPlayerCount();
                 } else if (Main.zkClient.pathExists("/game-rooms/2/waiting-players"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 2);
-                    int lockID = Main.zkClient.getWriteLock("/lobby/stats");
+                    String lockID = Main.zkClient.getWriteLock("/lobby/stats");
                     //go into the room number of the lobby and decrement the number
                     GameRoomsInfo gameRoomsInfo = Main.zkClient.getGameRoomsInfo();
                     gameRoomsInfo.removePlayer(2);
                     Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
-                    Main.zkClient.releaseWriteLock("/lobby/stats", lockID);
+                    Main.zkClient.releaseWriteLock( lockID);
                     Main.zkClient.decrementPlayerCount();
                 } //next would be clauses for the live players, we would kill them in their game and remove them from the list of live players
                 //Player action packet
@@ -113,7 +115,7 @@ public class RequestHandler implements Runnable{
                 ByteBuffer ackBuf;
                 data.flip();
                 EnterRoom enterRoom = new EnterRoom(data);
-                int lockId = Main.zkClient.getWriteLock("/lobby/stats");
+                String lockId = Main.zkClient.getWriteLock("/lobby/stats");
                 GameRoomsInfo gameInfo = Main.zkClient.getGameRoomsInfo();
                 if(gameInfo.addPlayer(enterRoom.getRoomNum())){
                     //the room was entered successfully, make a "true" ack packet
@@ -129,7 +131,7 @@ public class RequestHandler implements Runnable{
                     channel.send(ackBuf, client);
                 }
                 //release the write lock (very important...)
-                Main.zkClient.releaseWriteLock("/lobby/stats", lockId);
+                Main.zkClient.releaseWriteLock(lockId);
                 break;
             default:
                 break;
