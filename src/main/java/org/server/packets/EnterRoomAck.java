@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 public class EnterRoomAck extends Packet{
 
     /*
-    06 |0| <Successfully entered room>
+    06 | 0 | <Successfully entered room>
     */
 
     private final byte[] data;

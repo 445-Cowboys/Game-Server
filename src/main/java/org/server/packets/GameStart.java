@@ -1,10 +1,10 @@
 package org.server.packets;
 
-import org.server.AEAD;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
+
 
 public class GameStart extends Packet {
 
@@ -17,7 +17,6 @@ public class GameStart extends Packet {
     private final int bossNum;
     private final int gameRoom;
     private final byte[] symmetricKey;
-    AEAD aead = new AEAD();
 
     public GameStart(ByteBuffer buffer) throws GeneralSecurityException, IOException {
 
@@ -40,7 +39,7 @@ public class GameStart extends Packet {
         symmetricKey = new byte[totalLength - offset];
         buffer.position(offset);
         buffer.get(symmetricKey, 0, symmetricKey.length);
-        aead.parseKey(symmetricKey);
+
 
         // Convert the symmetric key bytes back into a SecretKey object
         //symmetricKey = new SecretKeySpec(symmetricKeyBytes, "AES");
@@ -54,7 +53,4 @@ public class GameStart extends Packet {
     }
     public int getBossNum() { return bossNum;}
     public int getGameRoom() { return gameRoom; }
-    public AEAD getSymmetricKey(){
-        return aead;
-    }
 }

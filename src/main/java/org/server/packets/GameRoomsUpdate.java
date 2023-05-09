@@ -1,15 +1,13 @@
 package org.server.packets;
 
-
 import java.nio.ByteBuffer;
 
-public class GameRooms extends Packet {
-
-    /*
-    6 <R1 Number of players>|<R1 IsRoomFull>|<R1 Status>|0|
+public class GameRoomsUpdate extends Packet{
+        /*
+    11 <R1 Number of players>|<R1 IsRoomFull>|<R1 Status>|0|
       <R2 Number of players>|<R2 IsRoomFull>|<R2 Status>|0|
       <R3 Number of players>|<R3 IsRoomFull>|<R3 Status>|0|
-      <Server 1 Status> <Server 2 Status> <Server 3 Status>  <
+      <Server 1 Status> <Server 2 Status> <Server 3 Status> <timestampe> <
      */
 
     private final byte[] data;
@@ -17,12 +15,13 @@ public class GameRooms extends Packet {
     private final boolean[] roomFull;
     private final int[] roomStatus;
     private final int[] serverStatus;
-    private final int totalNumOfPlayers;
+
+    private final long timeStamp;
 
 
-    public GameRooms(ByteBuffer buffer){
+    public GameRoomsUpdate(ByteBuffer buffer){
 
-    int totalLength = buffer.limit();
+        int totalLength = buffer.limit();
         this.data = new byte[totalLength];
         buffer.get(data, 0, data.length);
         buffer.rewind();
@@ -46,14 +45,12 @@ public class GameRooms extends Packet {
             if ( i < 2 ) offset += 4;
         }
         offset+=4;
-        this.totalNumOfPlayers = buffer.getInt(offset);
+        this.timeStamp = buffer.getLong(offset);
     }
-
-
 
     @Override
     public int getOpcode(){
-        return 5;
+        return 11;
     }
 
     public int getNumPlayers(int room) {
@@ -72,7 +69,8 @@ public class GameRooms extends Packet {
         return serverStatus[server];
     }
 
-    public int getTotalNumOfPlayers() {
-        return totalNumOfPlayers;
+    public long getTimeStamp(){
+        return timeStamp;
     }
+
 }

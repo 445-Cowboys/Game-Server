@@ -19,7 +19,6 @@ public class GameStateChangeListener implements IZkDataListener {
             System.out.println(player);
             String ip = player.split("/")[0];
             int port = Integer.parseInt(player.split("/")[1]);
-            //
         }
         //after the state gets sent to all the children, release the read lock
         Main.zkClient.releaseReadLock(path, idVal);

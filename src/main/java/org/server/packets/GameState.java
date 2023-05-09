@@ -1,5 +1,6 @@
 package org.server.packets;
 
+
 import java.nio.ByteBuffer;
 
 public class GameState extends Packet {
@@ -69,18 +70,15 @@ public class GameState extends Packet {
     }
 
     public int getPlayerHealth(int player) {
-        player--;
-        return playerHealth[player];
+        return this.playerHealth[player];
     }
 
-    public int[] getPlayerAmmo(int player) {
-        player--;
-        return playerAmmo;
+    public int getPlayerAmmo(int player) {
+        return this.playerAmmo[player];
     }
 
-    public int[] getPlayerAbilityCD(int player) {
-        player--;
-        return playerAbilityCD;
+    public int getPlayerAbilityCD(int player) {
+        return this.playerAbilityCD[player];
     }
 
     public int getCurrentPlayer() {

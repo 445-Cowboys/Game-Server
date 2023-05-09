@@ -217,6 +217,11 @@ public class ZookeeperClient {
         releaseWriteLock("/player-count", idVal);
     }
 
+    public void removePlayerFromLobby(String playerAddress){
+        if(!zkClient.exists("/lobby/waiting-clients"+playerAddress)) return;
+        zkClient.delete("/lobby/waiting-clients"+playerAddress);
+    }
+
     public void decrementPlayerCount(){
         int idVal = getWriteLock("/player-count");
         zkClient.writeData("/player-count", ((PlayerCount) zkClient.readData("/player-count")).decrement());
@@ -228,6 +233,10 @@ public class ZookeeperClient {
         PlayerCount pc = zkClient.readData("/player-count");
         releaseReadLock("/player-count", idVal);
         return pc.getCount();
+    }
+
+    public boolean pathExists(String path){
+        return zkClient.exists(path);
     }
 
 

@@ -81,7 +81,7 @@ public class ClientWatcher implements Runnable{
                 }
 
             }
-        },delay,30_000);
+        },delay,15_000);
     }
 }
 
@@ -131,10 +131,10 @@ class HeartBeat implements Runnable{
                 }catch (TimeoutException | InterruptedException | ExecutionException e){
                     //we didn't get an ack back in time, increment the retry counter and continue
                     retryNum++;
+                    buf.rewind();
                     continue;
                 }
                 if ((int) ackBuf.get(0) == -1) {
-                    buf.rewind();
                     channel.close();
                     return;
                 }

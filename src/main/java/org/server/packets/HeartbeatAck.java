@@ -1,10 +1,9 @@
 package org.server.packets;
 
+
 import java.nio.ByteBuffer;
 
 public class HeartbeatAck extends Packet {
-
-
     private final byte[] data;
 
     private final int opcode;

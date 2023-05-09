@@ -9,7 +9,6 @@ public class CourtesyLeave extends Packet {
     private final int opcode;
 
     public CourtesyLeave(ByteBuffer buffer){
-
         //This code readies the bytebuffer data to be read
         int totalLength = buffer.limit();
         this.data = new byte[totalLength];
@@ -24,6 +23,5 @@ public class CourtesyLeave extends Packet {
     public int getOpcode(){
         return -5;
     }
-
 
 }
