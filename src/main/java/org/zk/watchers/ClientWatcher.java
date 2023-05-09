@@ -1,6 +1,7 @@
 package org.zk.watchers;
 
 import org.server.Main;
+import org.zk.dataClasses.GameRoomsInfo;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -53,6 +54,8 @@ public class ClientWatcher implements Runnable{
                 List<String>waitingGamePlayers2 = Main.zkClient.getWaitingGameClients(2);
                 for(String client:waitingGamePlayers2){
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
+                    if(client.contains("read-lock") || client.contains("write-lock"))
+                        continue;
                     new Thread(new HeartBeat(client, 1, "/game-rooms/"+2+"/waiting-players")).start();
                 }
 
@@ -142,8 +145,21 @@ class HeartBeat implements Runnable{
             }
 
             //remove this client
-            Main.zkClient.deleteNode("/"+parentPath+"/"+clientAddress);
+            Main.zkClient.deleteNode(parentPath+"/"+clientAddress);
             Main.zkClient.decrementPlayerCount();
+            //this client was a waiting client for a game,
+            if(parentPath.contains("waiting-players")){
+                //get the room number
+                int roomNum = Integer.parseInt(parentPath.split("/")[2]);
+                int lockID = Main.zkClient.getWriteLock("/lobby/stats");
+                //go into the room number of the lobby and decrement the number
+                GameRoomsInfo gameRoomsInfo = Main.zkClient.getGameRoomsInfo();
+                gameRoomsInfo.removePlayer(roomNum);
+                Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
+                Main.zkClient.releaseWriteLock("/lobby/stats", lockID);
+            } else if (parentPath.contains("live-players")) {
+                //remove them from the total count in the game room number in the lobby and kill them in the game
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

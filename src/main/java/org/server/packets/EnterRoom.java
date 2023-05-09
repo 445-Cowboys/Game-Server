@@ -12,7 +12,7 @@ public class EnterRoom extends Packet {
     private final int roomNum;
 
     private final int portNum;
-    private final String userName;
+
 
 
     public EnterRoom(ByteBuffer buffer) {
@@ -25,19 +25,13 @@ public class EnterRoom extends Packet {
         int offset = 6;
         buffer.position(offset);
         this.portNum = buffer.getInt(offset);
-        offset = 11;
-        buffer.position(offset);
-        byte[] userNameBytes = new byte[totalLength - offset];
-        buffer.position(offset);
-        buffer.get(userNameBytes, 0, userNameBytes.length);
-        userName = new String(userNameBytes);
 
     }
 
 
     @Override
     public int getOpcode(){
-        return 9;
+        return 3;
     }
 
     public int getRoomNum(){
@@ -48,8 +42,5 @@ public class EnterRoom extends Packet {
         return portNum;
     }
 
-    public String getuserName(){
-        return userName;
-    }
 
 }

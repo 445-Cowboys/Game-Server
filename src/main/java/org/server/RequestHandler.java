@@ -1,5 +1,6 @@
 package org.server;
 
+import org.server.packets.EnterRoom;
 import org.server.packets.Factory;
 import org.zk.dataClasses.GameRoomsInfo;
 import org.zk.dataClasses.GameState;
@@ -44,7 +45,7 @@ public class RequestHandler implements Runnable{
         int port_num;
         switch ((int) data.get(0)){
             case 20:
-                System.out.println("Received an initial awake connection from " + client);
+//                System.out.println("Received an initial awake connection from " + client);
                 GameRoomsInfo gfInfo = Main.zkClient.getGameRoomsInfo();
                 port_num = data.getInt(1);
                 //add the ip address of the client to the list of clients in the lobby room
@@ -53,7 +54,6 @@ public class RequestHandler implements Runnable{
                 break;
                 //leave request
             case -5:
-                System.out.println("they wanna go");
                 port_num = data.getInt(1);
                 Main.zkClient.removePlayerFromLobby(client.toString().split(":")[0]+":"+port_num);
                 Main.zkClient.decrementPlayerCount();
@@ -77,13 +77,30 @@ public class RequestHandler implements Runnable{
                 //remove the IP from the list of clients
                 break;
             //Enter game room packet
-            case 7:
+            case 3:
                 //if the game is currently not in session & there are less than three people, allow access.
                 //otherwise deny entry
                 //send an ack with the success or fail
-                System.out.println("Attempting to enter room");
-                ByteBuffer ackBuf = new Factory().makeEnterRoomAckPacket(false);
-                channel.send(ackBuf, client);
+                ByteBuffer ackBuf;
+                data.flip();
+                EnterRoom enterRoom = new EnterRoom(data);
+                int lockId = Main.zkClient.getWriteLock("/lobby/stats");
+                GameRoomsInfo gameInfo = Main.zkClient.getGameRoomsInfo();
+                if(gameInfo.addPlayer(enterRoom.getRoomNum())){
+                    //the room was entered successfully, make a "true" ack packet
+                    ackBuf = new Factory().makeEnterRoomAckPacket(true);
+                    channel.send(ackBuf, client);
+                    //move the player to "waiting game-clients" since they are now in a room.
+                    Main.zkClient.addPlayerToWaitingGameClients(client.toString().split(":")[0]+":"+enterRoom.getPortNum(), enterRoom.getRoomNum());
+                    //rewrite the lobby stats info with the new gameInfo object
+                    Main.zkClient.writeToGameRoomsInfo(gameInfo);
+                }else{
+                    //room was not successfully entered
+                    ackBuf = new Factory().makeEnterRoomAckPacket(false);
+                    channel.send(ackBuf, client);
+                }
+                //release the write lock (very important...)
+                Main.zkClient.releaseWriteLock("/lobby/stats", lockId);
                 break;
             default:
                 break;

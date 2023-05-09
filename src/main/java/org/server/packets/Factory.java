@@ -69,7 +69,7 @@ public class Factory {
     public ByteBuffer makeEnterRoomPacket(int gameRoom, int port) {
         ByteBuffer buffer = ByteBuffer.allocate(10); // Total length of packet is 6 byte + username
 
-        buffer.put((byte) 0x07);
+        buffer.put((byte) 0x03);
         buffer.putInt(gameRoom);
         buffer.put((byte) 0);
         buffer.putInt(port);
@@ -149,15 +149,13 @@ public class Factory {
     }
 
     public ByteBuffer makePlayerCountPacket(int playerCount, long updateTime){
-        System.out.println("making player count packet");
-        ByteBuffer buffer = ByteBuffer.allocate(14);
+        ByteBuffer buffer = ByteBuffer.allocate(6);
         buffer.put((byte) 0x0A);
         buffer.put((byte) 0);
         buffer.putInt(playerCount);
         buffer.putLong(updateTime);
 
         buffer.flip();
-        System.out.println("made player count packet");
         return buffer;
     }
 
@@ -170,11 +168,11 @@ public class Factory {
         return buffer;
     }
 
-    public ByteBuffer makeCourtesyLeave() {
-        ByteBuffer buffer = ByteBuffer.allocate(1);
+    public ByteBuffer makeCourtesyLeave(int port) {
+        ByteBuffer buffer = ByteBuffer.allocate(5);
 
         buffer.put((byte) -5);
-
+        buffer.putInt(port);
         buffer.flip();
         return buffer;
     }

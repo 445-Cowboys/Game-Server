@@ -164,6 +164,8 @@ public class ZookeeperClient {
      */
     public GameRoomsInfo getGameRoomsInfo(){return zkClient.readData("/lobby/stats", true);}
 
+    public void writeToGameRoomsInfo(GameRoomsInfo gameRoomsInfo){zkClient.writeData("/lobby/stats", gameRoomsInfo);}
+
     /**
      * Get the clients currently waiting in the lobby
      * @return The list of clients currently in the lobby
@@ -181,7 +183,9 @@ public class ZookeeperClient {
      * @return the list of clients currently in a game
      */
     public List<String> getGameClients(int gameRoomNum){
+        int idVal = getReadLock("/game-rooms/"+gameRoomNum+"/live-players");
         List<String> clients = zkClient.getChildren("/game-rooms/"+gameRoomNum+"/live-players");
+        releaseReadLock("/game-rooms/"+gameRoomNum+"/live-players", idVal);
         return clients;
     }
 
@@ -191,7 +195,9 @@ public class ZookeeperClient {
      * @return the list of clients currently in a game
      */
     public List<String> getWaitingGameClients(int gameRoomNum){
+        int idVal = getReadLock("/game-rooms/"+gameRoomNum+"/waiting-players");
         List<String> clients = zkClient.getChildren("/game-rooms/"+gameRoomNum+"/waiting-players");
+        releaseReadLock("/game-rooms/"+gameRoomNum+"/waiting-players", idVal);
         return clients;
     }
 
@@ -220,6 +226,19 @@ public class ZookeeperClient {
     public void removePlayerFromLobby(String playerAddress){
         if(!zkClient.exists("/lobby/waiting-clients"+playerAddress)) return;
         zkClient.delete("/lobby/waiting-clients"+playerAddress);
+    }
+
+    public void addPlayerToWaitingGameClients(String playerAddress, int gameRoom){
+        //remove them from the main lobby
+        removePlayerFromLobby(playerAddress);
+        //put them in the game waiting state
+        if(zkClient.exists("/game-rooms/"+gameRoom+"/waiting-players"+playerAddress)) return;
+        zkClient.createPersistent("/game-rooms/"+gameRoom+"/waiting-players"+playerAddress);
+    }
+
+    public void removePlayerFromWaitingGameClients(String playerAddress, int gameRoom){
+        if(!zkClient.exists("/game-rooms/"+gameRoom+"/waiting-players"+playerAddress)) return;
+        zkClient.delete("/game-rooms/"+gameRoom+"/waiting-players"+playerAddress);
     }
 
     public void decrementPlayerCount(){
