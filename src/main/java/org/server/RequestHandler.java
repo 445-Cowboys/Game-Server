@@ -55,9 +55,20 @@ public class RequestHandler implements Runnable{
                 //leave request
             case -5:
                 port_num = data.getInt(1);
-                Main.zkClient.removePlayerFromLobby(client.toString().split(":")[0]+":"+port_num);
-                Main.zkClient.decrementPlayerCount();
-            //Player action packet
+                if(Main.zkClient.pathExists("/lobby/stats"+client.toString().split(":")[0])) {
+                    Main.zkClient.removePlayerFromLobby(client.toString().split(":")[0] + ":" + port_num);
+                    Main.zkClient.decrementPlayerCount();
+                } else if (Main.zkClient.pathExists("/game-rooms/0/waiting-players"+client.toString().split(":")[0])) {
+                    Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 0);
+                    Main.zkClient.decrementPlayerCount();
+                } else if (Main.zkClient.pathExists("/game-rooms/1/waiting-players"+client.toString().split(":")[0])) {
+                    Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 1);
+                    Main.zkClient.decrementPlayerCount();
+                } else if (Main.zkClient.pathExists("/game-rooms/2/waiting-players"+client.toString().split(":")[0])) {
+                    Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 2);
+                    Main.zkClient.decrementPlayerCount();
+                } //next would be clauses for the live players
+                //Player action packet
             case 8:
                 //send an ACK back
                 ByteBuffer buf = ByteBuffer.allocate(1);
