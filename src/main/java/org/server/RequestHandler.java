@@ -55,17 +55,35 @@ public class RequestHandler implements Runnable{
                 //leave request
             case -5:
                 port_num = data.getInt(1);
-                if(Main.zkClient.pathExists("/lobby/stats"+client.toString().split(":")[0])) {
+                if(Main.zkClient.pathExists("/lobby/stats"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromLobby(client.toString().split(":")[0] + ":" + port_num);
                     Main.zkClient.decrementPlayerCount();
-                } else if (Main.zkClient.pathExists("/game-rooms/0/waiting-players"+client.toString().split(":")[0])) {
+                } else if (Main.zkClient.pathExists("/game-rooms/0/waiting-players"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 0);
+                    int lockID = Main.zkClient.getWriteLock("/lobby/stats");
+                    //go into the room number of the lobby and decrement the number
+                    GameRoomsInfo gameRoomsInfo = Main.zkClient.getGameRoomsInfo();
+                    gameRoomsInfo.removePlayer(0);
+                    Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
+                    Main.zkClient.releaseWriteLock("/lobby/stats", lockID);
                     Main.zkClient.decrementPlayerCount();
-                } else if (Main.zkClient.pathExists("/game-rooms/1/waiting-players"+client.toString().split(":")[0])) {
+                } else if (Main.zkClient.pathExists("/game-rooms/1/waiting-players"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 1);
+                    int lockID = Main.zkClient.getWriteLock("/lobby/stats");
+                    //go into the room number of the lobby and decrement the number
+                    GameRoomsInfo gameRoomsInfo = Main.zkClient.getGameRoomsInfo();
+                    gameRoomsInfo.removePlayer(1);
+                    Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
+                    Main.zkClient.releaseWriteLock("/lobby/stats", lockID);
                     Main.zkClient.decrementPlayerCount();
-                } else if (Main.zkClient.pathExists("/game-rooms/2/waiting-players"+client.toString().split(":")[0])) {
+                } else if (Main.zkClient.pathExists("/game-rooms/2/waiting-players"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 2);
+                    int lockID = Main.zkClient.getWriteLock("/lobby/stats");
+                    //go into the room number of the lobby and decrement the number
+                    GameRoomsInfo gameRoomsInfo = Main.zkClient.getGameRoomsInfo();
+                    gameRoomsInfo.removePlayer(2);
+                    Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
+                    Main.zkClient.releaseWriteLock("/lobby/stats", lockID);
                     Main.zkClient.decrementPlayerCount();
                 } //next would be clauses for the live players
                 //Player action packet
