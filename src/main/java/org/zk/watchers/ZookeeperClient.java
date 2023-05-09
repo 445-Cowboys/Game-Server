@@ -50,7 +50,8 @@ public class ZookeeperClient {
         //get the number of children that '/live-servers' has. if it is zero, then all the servers have previously died
         //and we should reset all the values that we have.
         //we make the indicator of the server ephermal since we want it to go away when the server crashes
-        if(zkClient.getChildren("/live-servers").size() != 0){
+        Outer: if(zkClient.getChildren("/live-servers").size() != 0){
+            if(zkClient.exists("/live-server/"+id)) break Outer;
             zkClient.createEphemeral("/live-servers/"+ id);
             return;
         }
@@ -204,7 +205,7 @@ public class ZookeeperClient {
 
     /**
      * Add a new client to the list of clients waiting in the lobby
-     * @param playerAddress IP address of added player
+     * @param playerAddress IP address and port of added player
      */
     public void addPlayerToLobby(String playerAddress){
         //add the new address to the list of waiting clients
@@ -214,6 +215,13 @@ public class ZookeeperClient {
         getWriteLock("/player-count");
         zkClient.writeData("/player-count", ((PlayerCount) zkClient.readData("/player-count")).increment());
         releaseWriteLock("/player-count");
+    }
+
+    public int getPlayerCount(){
+        getReadLock("/player-count");
+        PlayerCount pc = zkClient.readData("/player-count");
+        releaseReadLock("/player-count");
+        return pc.getCount();
     }
 
 

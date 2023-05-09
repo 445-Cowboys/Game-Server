@@ -31,7 +31,7 @@ public class ClientWatcher implements Runnable{
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
                     if(client.contains("read-lock") || client.contains("write-lock"))
                         continue;
-                    new Thread(new HeartBeat(client, 0)).start();
+                    new Thread(new HeartBeat(client, 0, "lobby/waiting-clients")).start();
                 }
                 //do the same thing for the players in the game rooms
                 List<String>waitingGamePlayers0 = Main.zkClient.getWaitingGameClients(0);
@@ -39,7 +39,7 @@ public class ClientWatcher implements Runnable{
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
                     if(client.contains("read-lock") || client.contains("write-lock"))
                         continue;
-                    new Thread(new HeartBeat(client, 1)).start();
+                    new Thread(new HeartBeat(client, 1, "/game-rooms/"+0+"/waiting-players")).start();
                 }
 
                 List<String>waitingGamePlayers1 = Main.zkClient.getWaitingGameClients(1);
@@ -47,13 +47,13 @@ public class ClientWatcher implements Runnable{
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
                     if(client.contains("read-lock") || client.contains("write-lock"))
                         continue;
-                    new Thread(new HeartBeat(client, 1)).start();
+                    new Thread(new HeartBeat(client, 1, "/game-rooms/"+1+"/waiting-players")).start();
                 }
 
                 List<String>waitingGamePlayers2 = Main.zkClient.getWaitingGameClients(2);
                 for(String client:waitingGamePlayers2){
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
-                    new Thread(new HeartBeat(client, 1)).start();
+                    new Thread(new HeartBeat(client, 1, "/game-rooms/"+2+"/waiting-players")).start();
                 }
 
                 List<String>activeGamePlayers0 = Main.zkClient.getGameClients(0);
@@ -61,7 +61,7 @@ public class ClientWatcher implements Runnable{
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
                     if(client.contains("read-lock") || client.contains("write-lock"))
                         continue;
-                    new Thread(new HeartBeat(client, 1)).start();
+                    new Thread(new HeartBeat(client, 1, "/game-rooms/"+0+"/live-players")).start();
                 }
 
                 List<String>activeGamePlayers1 = Main.zkClient.getGameClients(1);
@@ -69,7 +69,7 @@ public class ClientWatcher implements Runnable{
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
                     if(client.contains("read-lock") || client.contains("write-lock"))
                         continue;
-                    new Thread(new HeartBeat(client, 1)).start();
+                    new Thread(new HeartBeat(client, 1, "/game-rooms/"+1+"/live-players")).start();
                 }
 
                 List<String>activeGamePlayers2 = Main.zkClient.getGameClients(2);
@@ -77,7 +77,7 @@ public class ClientWatcher implements Runnable{
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
                     if(client.contains("read-lock") || client.contains("write-lock"))
                         continue;
-                    new Thread(new HeartBeat(client, 1)).start();
+                    new Thread(new HeartBeat(client, 1, "/game-rooms/"+2+"/live-players")).start();
                 }
 
             }
@@ -88,11 +88,14 @@ public class ClientWatcher implements Runnable{
 class HeartBeat implements Runnable{
     String clientAddress;
     int clientType;
+
+    String parentPath;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public HeartBeat(String clientAddress, int clientType){
+    public HeartBeat(String clientAddress, int clientType, String parentPath){
         this.clientAddress=clientAddress;
         this.clientType=clientType;
+        this.parentPath = parentPath;
     }
 
     @Override
@@ -120,7 +123,7 @@ class HeartBeat implements Runnable{
             int retryNum=0;
             while(retryNum < 10) {
                 System.out.println(clientAddress);
-                channel.send(buf, new InetSocketAddress(clientAddress.split("/")[0], Integer.parseInt(clientAddress.split("/")[1])));
+                channel.send(buf, new InetSocketAddress(clientAddress.split(":")[0], Integer.parseInt(clientAddress.split(":")[1])));
                 Future<Void> task = executorService.submit(Callable);
                 //and now the channel waits to receive word back from the client
                 try{
@@ -139,7 +142,7 @@ class HeartBeat implements Runnable{
             }
 
             //remove this client
-            Main.zkClient.deleteNode(clientAddress);
+            Main.zkClient.deleteNode("/"+clientAddress);
             //TODO decrement total player count here
         } catch (IOException e) {
             throw new RuntimeException(e);
