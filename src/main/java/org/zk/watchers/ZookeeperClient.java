@@ -363,11 +363,18 @@ public class ZookeeperClient {
             isLeader.set(true);
             //spin up a thread that will send heartbeats to the clients every thirty seconds
             new Thread(new ClientWatcher(delay)).start();
+            //spin up data/children watchers that will relay any updates to the clients
+            zkClient.subscribeDataChanges("/game-rooms/0", new GameStateChangeListener());
             zkClient.subscribeDataChanges("/game-rooms/1", new GameStateChangeListener());
             zkClient.subscribeDataChanges("/game-rooms/2", new GameStateChangeListener());
-            zkClient.subscribeDataChanges("/game-rooms/3", new GameStateChangeListener());
             zkClient.subscribeDataChanges("/player-count", new ClientCountChangeListener());
             zkClient.subscribeDataChanges("/lobby/stats", new LobbyStatsWatcher());
+            zkClient.subscribeChildChanges("/game-rooms/0/waiting-players", new GameWaitingPlayersWatcher());
+            zkClient.subscribeChildChanges("/game-rooms/1/waiting-players", new GameWaitingPlayersWatcher());
+            zkClient.subscribeChildChanges("/game-rooms/2/waiting-players", new GameWaitingPlayersWatcher());
+            zkClient.subscribeChildChanges("/game-rooms/0/live-players", new GamePlayerListWatcher());
+            zkClient.subscribeChildChanges("/game-rooms/1/live-players", new GamePlayerListWatcher());
+            zkClient.subscribeChildChanges("/game-rooms/2/live-players", new GamePlayerListWatcher());
         } catch (ZkNodeExistsException e) {
             System.out.println("Leader already made: "+getLeaderNode().getAddress());
         }
