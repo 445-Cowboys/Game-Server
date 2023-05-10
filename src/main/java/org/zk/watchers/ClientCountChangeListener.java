@@ -13,6 +13,8 @@ public class ClientCountChangeListener implements IZkDataListener {
         //cast o to player count type
         long curTime = System.nanoTime();
         ByteBuffer pcBuf = new Factory().makePlayerCountPacket(((PlayerCount) o).getCount(), curTime);
+        //just to make sure the position is where it needs to be
+        pcBuf.position(0);
 
         //go through the list of clients in lobby, we only relay client count to the lobby screen so
         //for each in the lobby or a waiting for game to start state, send them the new lobby info now that

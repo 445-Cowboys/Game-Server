@@ -30,9 +30,7 @@ public abstract class ZookeeperData {
             case 1:
                 return new ServerData(new String(dataOfInterest));
             case 2:
-                AEAD aead = new AEAD();
-                aead.parseKey(dataOfInterest);
-                return new EncryptionKey(aead);
+                return new EncryptionKey(dataOfInterest);
             case 4:
                ByteArrayInputStream bais = new ByteArrayInputStream(dataOfInterest);
                 ObjectInputStream ois = new ObjectInputStream(bais);
@@ -40,14 +38,15 @@ public abstract class ZookeeperData {
                 return new GameRoomsInfo((List<GameRoom>) ois.readObject());
             case 5:
                 //this one will be for game state
-                break;
+                //just use a byte array input output stream to serialize the game state.
+                bais = new ByteArrayInputStream(dataOfInterest);
+                ois = new ObjectInputStream(bais);
+                return (GameState) ois.readObject();
             case 6:
                 return new PlayerCount(dataOfInterest[0]);
             //we will never reach the default case unless something horribly wrong has happened
             default: return null;
 
         }
-        //we will never reach this.
-        return null;
     }
 }

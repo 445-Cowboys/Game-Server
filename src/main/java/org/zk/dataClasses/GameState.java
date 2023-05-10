@@ -1,24 +1,35 @@
 package org.zk.dataClasses;
 
-public class GameState extends ZookeeperData {
+import com.google.common.primitives.Bytes;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+public class GameState extends ZookeeperData implements Serializable {
 
     private final Player[] players;
     private int numPlayers;
     private int currentPlayer;
     private String actionMessage;
 
+    private int frameNum;
+
     public GameState() {
         this.players = new Player[4];
         this.numPlayers = 0;
         this.currentPlayer = 0;
 
-        this.players[3] = new Player(Character.getRandomBoss());
+        this.players[3] = new Player(Character.DOUG_LEA);
     }
 
     public void addPlayer() {
         players[numPlayers] = new Player(Character.getPlayer(numPlayers));
         numPlayers++;
     }
+
+    public Player[] getPlayers(){return players;}
 
     public int getCurrentPlayer() {
         return currentPlayer;
@@ -31,10 +42,11 @@ public class GameState extends ZookeeperData {
     public void bossTurn() {
         Player boss = players[3];
 
-        if ((int) Math.floor(Math.random() * 4) == 3) {
-            defend();
-            return;
-        }
+        //get rid of the defend stuff for now...
+//        if ((int) Math.floor(Math.random() * 4) == 3) {
+//            defend();
+//            return;
+//        }
 
         if (boss.getAmmo() == 0) {
             reload();
@@ -63,6 +75,10 @@ public class GameState extends ZookeeperData {
         }
     }
 
+    public void killPlayer(int target) {
+
+    }
+
     public void defend() {
         Player player = players[currentPlayer];
         currentPlayer = currentPlayer + 1 % 4;
@@ -83,6 +99,15 @@ public class GameState extends ZookeeperData {
 
     @Override
     public byte[] serialize() {
-        return new byte[0];
+        //just serialize the game state as a whole, we'll see if this works?
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(this);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return Bytes.concat(new byte[]{Integer.valueOf(5).byteValue(), Integer.valueOf(0).byteValue()},bos.toByteArray());
     }
 }

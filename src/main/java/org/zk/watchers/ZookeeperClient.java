@@ -3,10 +3,7 @@ package org.zk.watchers;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
-import org.zk.dataClasses.GameRoomsInfo;
-import org.zk.dataClasses.GameState;
-import org.zk.dataClasses.PlayerCount;
-import org.zk.dataClasses.ServerData;
+import org.zk.dataClasses.*;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -98,9 +95,10 @@ public class ZookeeperClient {
         }
 
         if(!zkClient.exists("/game-rooms/0")){
-            zkClient.createPersistent("/game-rooms/0");
+            zkClient.createPersistent("/game-rooms/0", new GameState());
             zkClient.createPersistent("/game-rooms/0/waiting-players");
             zkClient.createPersistent("/game-rooms/0/live-players");
+            zkClient.createPersistent("/game-rooms/0/key", new EncryptionKey(new byte[0]));
         }else{
             for(String client:zkClient.getChildren("/game-rooms/0/waiting-players"))
                 zkClient.delete("/game-rooms/0/waiting-players/"+client);
@@ -110,9 +108,10 @@ public class ZookeeperClient {
         }
 
         if(!zkClient.exists("/game-rooms/1")){
-            zkClient.createPersistent("/game-rooms/1");
+            zkClient.createPersistent("/game-rooms/1", new GameState());
             zkClient.createPersistent("/game-rooms/1/waiting-players");
             zkClient.createPersistent("/game-rooms/1/live-players");
+            zkClient.createPersistent("/game-rooms/1/key", new EncryptionKey(new byte[0]));
         }else{
             for(String client:zkClient.getChildren("/game-rooms/1/waiting-players"))
                 zkClient.delete("/game-rooms/1/waiting-players/"+client);
@@ -122,9 +121,10 @@ public class ZookeeperClient {
         }
 
         if(!zkClient.exists("/game-rooms/2")){
-            zkClient.createPersistent("/game-rooms/2");
+            zkClient.createPersistent("/game-rooms/2", new GameState());
             zkClient.createPersistent("/game-rooms/2/waiting-players");
             zkClient.createPersistent("/game-rooms/2/live-players");
+            zkClient.createPersistent("/game-rooms/2/key", new EncryptionKey(new byte[0]));
         }else{
             for(String client:zkClient.getChildren("/game-rooms/2/waiting-players"))
                 zkClient.delete("/game-rooms/2/waiting-players/"+client);
@@ -407,6 +407,14 @@ public class ZookeeperClient {
      */
     public void registerLeaderChangeWatcher(String path, IZkChildListener listener){
         zkClient.subscribeChildChanges(path, listener);
+    }
+
+    public void addEncryptionKey(int roomNum, byte[] symmetricKey){
+        zkClient.writeData("/game-rooms/"+roomNum+"/key", new EncryptionKey(symmetricKey));
+    }
+
+    public void addNewGameState(int roomNum, GameState gs){
+        zkClient.writeData("/game-rooms/"+roomNum, gs);
     }
 
 
