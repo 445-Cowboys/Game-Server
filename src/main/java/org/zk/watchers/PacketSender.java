@@ -51,7 +51,7 @@ public class PacketSender implements Runnable{
                 Future<Void> task = executorService.submit(Callable);
                 //and now the channel waits to receive word back from the client
                 try{
-                    task.get(1500, TimeUnit.MILLISECONDS);
+                    task.get(2500, TimeUnit.MILLISECONDS);
                 }catch (TimeoutException | InterruptedException | ExecutionException e){
                     //we didn't get an ack back in time, increment the retry counter and continue
                     channel.close();
