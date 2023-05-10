@@ -1,6 +1,8 @@
 package org.zk.dataClasses;
 
-public class Player extends ZookeeperData {
+import java.io.Serializable;
+
+public class Player implements Serializable {
 
     private final String name;
     private final int attack;
@@ -91,10 +93,5 @@ public class Player extends ZookeeperData {
 
     public String getDeathMessage() {
         return name + deathMessage;
-    }
-
-    @Override
-    public byte[] serialize() {
-        return new byte[0];
     }
 }

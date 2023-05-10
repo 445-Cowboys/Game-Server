@@ -7,9 +7,40 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.security.GeneralSecurityException;
 
 public class Main {
     public static ZookeeperClient zkClient;
+    public static AEAD keyRoom0;
+
+    static {
+        try {
+            keyRoom0 = new AEAD();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static AEAD keyRoom1;
+
+    static {
+        try {
+            keyRoom1 = new AEAD();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static AEAD keyRoom2;
+
+    static {
+        try {
+            keyRoom2 = new AEAD();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) throws IOException, InterruptedException {
         //args[0] holds the IP address of the zk server (it will always be on port 2181)
         //initiate the zookeeper watchers

@@ -241,6 +241,17 @@ public class ZookeeperClient {
         zkClient.delete("/game-rooms/"+gameRoom+"/waiting-players"+playerAddress);
     }
 
+    public void addPlayerToLiveGameClients(String playerAddress, int gameRoom){
+        removePlayerFromWaitingGameClients(playerAddress, gameRoom);
+        if(zkClient.exists("/game-rooms/"+gameRoom+"/live-players/"+playerAddress)) return;
+        zkClient.createPersistent("/game-rooms/"+gameRoom+"/live-players/"+playerAddress);
+    }
+
+    public void removePlayerFromLiveGameClients(String playerAddress, int gameRoom){
+        if(!zkClient.exists("/game-rooms/"+gameRoom+"/live-players"+playerAddress)) return;
+        zkClient.delete("/game-rooms/"+gameRoom+"/live-players"+playerAddress);
+    }
+
     public void decrementPlayerCount(){
         String idVal = getWriteLock("/player-count");
         zkClient.writeData("/player-count", ((PlayerCount) zkClient.readData("/player-count")).decrement());
@@ -372,9 +383,10 @@ public class ZookeeperClient {
             zkClient.subscribeChildChanges("/game-rooms/0/waiting-players", new GameWaitingPlayersWatcher());
             zkClient.subscribeChildChanges("/game-rooms/1/waiting-players", new GameWaitingPlayersWatcher());
             zkClient.subscribeChildChanges("/game-rooms/2/waiting-players", new GameWaitingPlayersWatcher());
-            zkClient.subscribeChildChanges("/game-rooms/0/live-players", new GamePlayerListWatcher());
-            zkClient.subscribeChildChanges("/game-rooms/1/live-players", new GamePlayerListWatcher());
-            zkClient.subscribeChildChanges("/game-rooms/2/live-players", new GamePlayerListWatcher());
+            //don't think I'll need these, but I'll keep em there for now...
+//            zkClient.subscribeChildChanges("/game-rooms/0/live-players", new GamePlayerListWatcher());
+//            zkClient.subscribeChildChanges("/game-rooms/1/live-players", new GamePlayerListWatcher());
+//            zkClient.subscribeChildChanges("/game-rooms/2/live-players", new GamePlayerListWatcher());
         } catch (ZkNodeExistsException e) {
             System.out.println("Leader already made: "+getLeaderNode().getAddress());
         }

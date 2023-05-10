@@ -4,6 +4,7 @@ package org.server.packets;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
+import org.server.AEAD;
 
 
 public class GameStart extends Packet {
@@ -20,9 +21,11 @@ public class GameStart extends Packet {
 
     public GameStart(ByteBuffer buffer) throws GeneralSecurityException, IOException {
 
+        AEAD aead = new AEAD();
 
         //This code readies the bytebuffer data to be read
         int totalLength = buffer.limit();
+        System.out.println((totalLength));
         this.data = new byte[totalLength];
         buffer.get(data, 0, data.length);
         buffer.rewind();
@@ -38,6 +41,7 @@ public class GameStart extends Packet {
         symmetricKey = new byte[totalLength - offset];
         buffer.position(offset);
         buffer.get(symmetricKey, 0, symmetricKey.length);
+        aead.parseKey(symmetricKey);
 
 
         // Convert the symmetric key bytes back into a SecretKey object
@@ -52,4 +56,7 @@ public class GameStart extends Packet {
     }
     public int getBossNum() { return bossNum;}
     public int getGameRoom() { return gameRoom; }
+    public byte[] getSymmetricKey(){
+        return symmetricKey;
+    }
 }
