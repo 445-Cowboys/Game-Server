@@ -109,6 +109,7 @@ public class RequestHandler implements Runnable{
                 break;
             //Enter game room packet
             case 3:
+                System.out.println("Enter room request from "+ client);
                 //if the game is currently not in session & there are less than three people, allow access.
                 //otherwise deny entry
                 //send an ack with the success or fail
