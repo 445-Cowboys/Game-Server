@@ -23,7 +23,6 @@ public class GameStart extends Packet {
 
         //This code readies the bytebuffer data to be read
         int totalLength = buffer.limit();
-        System.out.println((totalLength));
         this.data = new byte[totalLength];
         buffer.get(data, 0, data.length);
         buffer.rewind();
