@@ -16,7 +16,6 @@ public class GameStateChangeListener implements IZkDataListener {
         //will just discard it when we send it, but will still return an ack.
         for(String player: Main.zkClient.getGameClients(Integer.parseInt(path.split("/")[1]))){
             //player will hold the ip and listening port in the format "<IP>/<Port>"
-            System.out.println(player);
             String ip = player.split("/")[0];
             int port = Integer.parseInt(player.split("/")[1]);
         }

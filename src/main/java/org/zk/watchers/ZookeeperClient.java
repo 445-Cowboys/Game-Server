@@ -333,7 +333,6 @@ public class ZookeeperClient {
         //if we get here, we know there are no more writers queued up, so we can grab the read lock
         //create our ephemeral sequential node. we won't actually use any of the sequential propertiy things, but just use it
         //so that multiple read locks can get allocated
-        System.out.println("Now reading "+path);
         return zkClient.createEphemeralSequential(path+"/read-lock/lock-", new ServerData(String.valueOf(id)));
     }
 
@@ -343,7 +342,6 @@ public class ZookeeperClient {
      * @param id the lock id we are deleting
      */
     public void releaseReadLock(String id){
-        System.out.println("Releasing read lock: "+ id);
         zkClient.delete(id);
     }
 

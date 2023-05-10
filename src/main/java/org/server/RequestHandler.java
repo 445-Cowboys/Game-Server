@@ -41,7 +41,6 @@ public class RequestHandler implements Runnable{
     public void packetHandler() throws IOException, InterruptedException {
         //arbitrarily picked 500
         ByteBuffer ackPacket = ByteBuffer.allocate(500);
-        System.out.println((int) data.get(0));
         int port_num;
         switch ((int) data.get(0)){
             case 20:
@@ -56,9 +55,7 @@ public class RequestHandler implements Runnable{
                 break;
                 //leave request
             case -5:
-                System.out.println("Leave packet received.");
                 port_num = data.getInt(1);
-                System.out.println(client.toString().split(":")[0]+":"+port_num);
                 if(Main.zkClient.pathExists("/lobby/waiting-clients"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromLobby(client.toString().split(":")[0] + ":" + port_num);
                     Main.zkClient.decrementPlayerCount();
@@ -111,7 +108,6 @@ public class RequestHandler implements Runnable{
                 break;
             //Enter game room packet
             case 3:
-                System.out.println("Enter room request from "+ client);
                 //if the game is currently not in session & there are less than three people, allow access.
                 //otherwise deny entry
                 //send an ack with the success or fail

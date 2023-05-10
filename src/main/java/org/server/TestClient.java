@@ -48,7 +48,6 @@ public class TestClient {
         channel.receive(receivedBuf);
         //do nothing with the ack,we don't really care what it says rn we are more worried about how the server
         //responds to packets that get sent to it.
-        System.out.println("ACK received");
         receivedBuf.flip();
         return receivedBuf;
     }

@@ -125,7 +125,6 @@ class HeartBeat implements Runnable{
         try {
             int retryNum=0;
             while(retryNum < 10) {
-                System.out.println("sending heartbeat to "+clientAddress);
                 channel.send(buf, new InetSocketAddress(clientAddress.split(":")[0], Integer.parseInt(clientAddress.split(":")[1])));
                 Future<Void> task = executorService.submit(Callable);
                 //and now the channel waits to receive word back from the client
