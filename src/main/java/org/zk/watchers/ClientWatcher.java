@@ -29,6 +29,7 @@ public class ClientWatcher implements Runnable{
                 //from the list of clients and will find that they are already gone
                 List<String> waitingLobbyClients = Main.zkClient.getWaitingClients();
                 for(String client:waitingLobbyClients){
+                    System.out.println("heartbeat to "+client);
                     //spin up a heartbeat thread that will attempt to ping the client in the list of clients
                     if(client.contains("read-lock") || client.contains("write-lock"))
                         continue;
