@@ -29,7 +29,7 @@ public class RequestHandler implements Runnable{
     public void run() {
         try {
             packetHandler();
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -38,7 +38,7 @@ public class RequestHandler implements Runnable{
      * Handles packet info depending on the opcode found in the front
      * @throws IOException
      */
-    public void packetHandler() throws IOException {
+    public void packetHandler() throws IOException, InterruptedException {
         //arbitrarily picked 500
         ByteBuffer ackPacket = ByteBuffer.allocate(500);
         System.out.println((int) data.get(0));
@@ -48,9 +48,11 @@ public class RequestHandler implements Runnable{
 //                System.out.println("Received an initial awake connection from " + client);
                 GameRoomsInfo gfInfo = Main.zkClient.getGameRoomsInfo();
                 port_num = data.getInt(1);
+                channel.send(new Factory().makeGameRooms(new int[]{gfInfo.getGameRoom(0).getSize(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new boolean[]{gfInfo.getGameRoom(0).getRoomIsFull(), gfInfo.getGameRoom(1).getRoomIsFull(), gfInfo.getGameRoom(2).getRoomIsFull()},new int[]{gfInfo.getGameRoom(0).getState(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new int[]{Main.zkClient.checkServerStatus("rho.cs.oswego.edu"),Main.zkClient.checkServerStatus("moxie.cs.oswego.edu"),Main.zkClient.checkServerStatus("altair.cs.oswego.edu")},Main.zkClient.getPlayerCount()), client);
+                //sleep for a sec so we don't back traffic up too bad for the new member
+                Thread.sleep(1000);
                 //add the ip address of the client to the list of clients in the lobby room
                 Main.zkClient.addPlayerToLobby(client.toString().split(":")[0]+":"+port_num);
-                channel.send(new Factory().makeGameRooms(new int[]{gfInfo.getGameRoom(0).getSize(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new boolean[]{gfInfo.getGameRoom(0).getRoomIsFull(), gfInfo.getGameRoom(1).getRoomIsFull(), gfInfo.getGameRoom(2).getRoomIsFull()},new int[]{gfInfo.getGameRoom(0).getState(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new int[]{Main.zkClient.checkServerStatus("rho.cs.oswego.edu"),Main.zkClient.checkServerStatus("moxie.cs.oswego.edu"),Main.zkClient.checkServerStatus("altair.cs.oswego.edu")},Main.zkClient.getPlayerCount()), client);
                 break;
                 //leave request
             case -5:

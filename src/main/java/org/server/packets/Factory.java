@@ -90,7 +90,7 @@ public class Factory {
     }
 
     public ByteBuffer makeGameRooms(int[] numPlayers, boolean[] roomFull, int[] roomStatus, int[] serverStatus, int totalNumOfPlayers) {
-        ByteBuffer buffer = ByteBuffer.allocate(47); // Total length of packet is 42 bytes
+        ByteBuffer buffer = ByteBuffer.allocate(47); // Total length of packet is 47 bytes
 
         buffer.put((byte) 0x05);
 
