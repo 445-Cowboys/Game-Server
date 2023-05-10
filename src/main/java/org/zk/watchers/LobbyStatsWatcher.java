@@ -17,7 +17,7 @@ public class LobbyStatsWatcher implements IZkDataListener {
         long curTime = System.nanoTime();
         GameRoomsInfo gfInfo = (GameRoomsInfo) o;
         String lockId = Main.zkClient.getReadLock("/lobby/stats");
-        ByteBuffer buffer = new Factory().makeGameRoomsUpdate(new int[]{gfInfo.getGameRoom(0).getSize(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new boolean[]{gfInfo.getGameRoom(0).getRoomIsFull(), gfInfo.getGameRoom(1).getRoomIsFull(), gfInfo.getGameRoom(2).getRoomIsFull()},new int[]{gfInfo.getGameRoom(0).getState(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new int[]{Main.zkClient.checkServerStatus("rho.cs.oswego.edu"),Main.zkClient.checkServerStatus("moxie.cs.oswego.edu"),Main.zkClient.checkServerStatus("altair.cs.oswego.edu")}, curTime);
+        ByteBuffer buffer = new Factory().makeGameRoomsUpdate(new int[]{gfInfo.getGameRoom(0).getSize(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new boolean[]{gfInfo.getGameRoom(0).getRoomIsFull(), gfInfo.getGameRoom(1).getRoomIsFull(), gfInfo.getGameRoom(2).getRoomIsFull()},new int[]{gfInfo.getGameRoom(0).getState(),gfInfo.getGameRoom(1).getState(),gfInfo.getGameRoom(2).getState()}, new int[]{Main.zkClient.checkServerStatus("rho.cs.oswego.edu"),Main.zkClient.checkServerStatus("moxie.cs.oswego.edu"),Main.zkClient.checkServerStatus("altair.cs.oswego.edu")}, curTime);
         Main.zkClient.releaseReadLock(lockId);
         //now that we have the buffer, go through each client inside the waiting clients and send it to them.
         //go through each player that would have the lobby screen open at the moment.

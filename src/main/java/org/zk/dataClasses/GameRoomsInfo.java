@@ -39,6 +39,9 @@ public class GameRoomsInfo extends ZookeeperData{
      * @return true if add was successful, false otherwise
      */
     public boolean addPlayer(int index){
+        if(gameRooms.get(index).getSize()+1 == 3){
+            gameRooms.get(index).changeState(2);
+        }
         return gameRooms.get(index).addPlayer();
     }
 
@@ -48,6 +51,10 @@ public class GameRoomsInfo extends ZookeeperData{
      * @return true if remove was successful, false otherwise
      */
     public boolean removePlayer(int index){
+        if(gameRooms.get(index).getSize()-1 < 3 && gameRooms.get(index).getState() != 1){
+            gameRooms.get(index).changeState(0);
+        }
+
         return gameRooms.get(index).removePlayer();
     }
 
