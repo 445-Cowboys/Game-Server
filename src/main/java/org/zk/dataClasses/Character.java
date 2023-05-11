@@ -3,7 +3,7 @@ package org.zk.dataClasses;
 public enum Character {
 
     THE_MAN_WITH_SOME_NAME("The Man With Some Name",
-            10, 10, 100, 6,
+            100, 10, 100, 6,
             "shoots %p with his revolver",
             "takes a swig of whiskey and gains %d defense",
             "reloads his revolver",
@@ -12,7 +12,7 @@ public enum Character {
             "succumbs to his wounds"),
 
     ONE_THOUSAND_GRIT_SANDPAPER("1000 Grit Sandpaper",
-            10, 10, 100, 6,
+            100, 10, 100, 6,
             "shoots %p with his sandpaper shooter",
             "puts on a new layer of sandpaper and gains %d defense",
             "reloads his sandpaper shooter",
@@ -21,7 +21,7 @@ public enum Character {
             "is covered in paper cuts and dies"),
 
     JANGO_THE_LIBERATOR("Jango the Liberator",
-            10, 10, 100, 6,
+            100, 10, 100, 6,
             "shoots %p with his blaster",
             "gains %d defense from his blaster shield",
             "reloads his blaster",
