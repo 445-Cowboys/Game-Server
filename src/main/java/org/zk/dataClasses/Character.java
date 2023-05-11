@@ -20,7 +20,8 @@ public enum Character {
             "is out of sandpaper",
             "is covered in paper cuts and dies"),
 
-    JANGO_THE_LIBERATOR("Jango the Liberator",
+
+    DJANGO_THE_LIBERATOR("Django the Liberator",
             10, 10, 100, 6,
             "shoots %p with his blaster",
             "gains %d defense from his blaster shield",
@@ -59,7 +60,7 @@ public enum Character {
     private static final Character[] players = {
             THE_MAN_WITH_SOME_NAME,
             ONE_THOUSAND_GRIT_SANDPAPER,
-            JANGO_THE_LIBERATOR
+            DJANGO_THE_LIBERATOR
     };
 
     private static final Character[] bosses = {
