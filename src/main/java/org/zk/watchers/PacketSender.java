@@ -60,7 +60,6 @@ public class PacketSender implements Runnable{
                     buffer.rewind();
                     continue;
                 }
-                System.out.println("Actually we got it.");
                 if ((int) ackBuf.get(0) == ackNum) {
                     channel.close();
                     return;

@@ -237,7 +237,7 @@ public class RequestHandler implements Runnable{
                         //reload guns
                         gs = Main.zkClient.getGameState(playerAction.getGameRoom());
                         //index 3 is always the boss
-                        gs.attack(3);
+                        gs.reload();
                         Main.zkClient.addNewGameState(playerAction.getGameRoom(), gs);
                         break;
                     default:
