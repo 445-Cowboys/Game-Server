@@ -177,4 +177,17 @@ public class Factory {
         return buffer;
     }
 
+    public ByteBuffer makeServerStatesPacket(int[] states, long timeStamp) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(20);
+        //12 in decimal
+        byteBuffer.put((byte) 0x0C);
+        byteBuffer.put((byte) 0);
+        byteBuffer.putInt(states[0]);
+        byteBuffer.putInt(states[1]);
+        byteBuffer.putInt(states[2]);
+        byteBuffer.putLong(timeStamp);
+        byteBuffer.flip();
+        return byteBuffer;
+    }
+
 }
