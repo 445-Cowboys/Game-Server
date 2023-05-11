@@ -2,6 +2,8 @@ package org.zk.watchers;
 
 import org.server.Main;
 import org.zk.dataClasses.GameRoomsInfo;
+import org.zk.dataClasses.GameState;
+import org.zk.dataClasses.PlayerCount;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -147,6 +149,10 @@ class HeartBeat implements Runnable{
             if(!parentPath.startsWith("/")){
                 parentPath = "/"+parentPath;
             }
+            //get the player's character index if they are in-game
+            int playerPosition=0;
+            if(parentPath.contains("live-players"))
+                playerPosition = Main.zkClient.getPlayerIndex(Integer.parseInt(parentPath.split("/")[2]), clientAddress);
             Main.zkClient.deleteNode(parentPath+"/"+clientAddress);
             Main.zkClient.decrementPlayerCount();
             //this client was a waiting client for a game,
@@ -167,15 +173,29 @@ class HeartBeat implements Runnable{
                 //go into the room number of the lobby and decrement the number
                 GameRoomsInfo gameRoomsInfo = Main.zkClient.getGameRoomsInfo();
                 gameRoomsInfo.removePlayer(roomNum);
+                if(gameRoomsInfo.getGameRoom(roomNum).getSize() == 0)
+                    gameRoomsInfo.resetRoom(roomNum);
                 Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
                 Main.zkClient.releaseWriteLock(lockID);
                 //kill the player in the game state
                 //get the write lock on the game state
                 lockID = Main.zkClient.getWriteLock("/game-rooms/"+roomNum);
                 //get the current game state, kill the player to modify it.
-
+                GameState gs = Main.zkClient.getGameState(roomNum);
+                gs.killPlayer(playerPosition);
+                Main.zkClient.addNewGameState(roomNum, gs);
                 //release the lock
                 Main.zkClient.releaseWriteLock(lockID);
+                System.out.println("removed "+clientAddress+" from game");
+                //if it's the boss's turn, have them do their action just like how we do in request handler
+                //if the next player is the boss, call their action.
+                if(Main.zkClient.getGameState(roomNum).getCurrentPlayer() == 3){
+                    String lockVal = Main.zkClient.getWriteLock("/game-rooms/"+roomNum);
+                    gs = Main.zkClient.getGameState(roomNum);
+                    gs.bossTurn();
+                    Main.zkClient.addNewGameState(roomNum, gs);
+                    Main.zkClient.releaseWriteLock(lockVal);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

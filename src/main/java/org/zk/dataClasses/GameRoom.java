@@ -51,6 +51,8 @@ public class GameRoom implements Serializable {
         this.state=state;
     }
 
+    public void resetSize(){size = 0;}
+
     public Integer getSize() {
         return size;
     }

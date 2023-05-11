@@ -239,9 +239,9 @@ public class ZookeeperClient {
         zkClient.delete("/game-rooms/"+gameRoom+"/waiting-players/"+playerAddress);
     }
 
-    public void addPlayerToLiveGameClients(String playerAddress, int gameRoom){
+    public void addPlayerToLiveGameClients(String playerAddress, int gameRoom, int characterIndex){
         if(zkClient.exists("/game-rooms/"+gameRoom+"/live-players/"+playerAddress)) return;
-        zkClient.createPersistent("/game-rooms/"+gameRoom+"/live-players/"+playerAddress);
+        zkClient.createPersistent("/game-rooms/"+gameRoom+"/live-players/"+playerAddress, new PlayerCount().setCount(characterIndex));
         removePlayerFromWaitingGameClients(playerAddress, gameRoom);
     }
 
@@ -256,11 +256,29 @@ public class ZookeeperClient {
         releaseWriteLock(idVal);
     }
 
+    public void lowerPlayerCount(int val){
+        String idVal = getWriteLock("/player-count");
+        zkClient.writeData("/player-count", ((PlayerCount) zkClient.readData("/player-count")).subtract(val));
+        releaseWriteLock(idVal);
+    }
+
+    public void resetRoom(int roomNum){
+        String idVal = getWriteLock("/lobby/stats");
+        GameRoomsInfo gi = getGameRoomsInfo();
+        gi.resetRoom(roomNum);
+        writeToGameRoomsInfo(gi);
+        releaseWriteLock(idVal);
+    }
+
     public int getPlayerCount(){
         String idVal = getReadLock("/player-count");
         PlayerCount pc = zkClient.readData("/player-count");
         releaseReadLock(idVal);
         return pc.getCount();
+    }
+
+    public int getPlayerIndex(int roomNum, String playerAddress){
+        return ((PlayerCount) zkClient.readData("/game-rooms/"+roomNum+"/live-players/"+playerAddress)).getCount();
     }
 
     public boolean pathExists(String path){

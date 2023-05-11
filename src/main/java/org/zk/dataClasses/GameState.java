@@ -53,13 +53,15 @@ public class GameState extends ZookeeperData implements Serializable {
             reload();
             return;
         }
+        int player_index = (int) Math.floor(Math.random() * 3);
+        while(players[player_index].getHealth() <= 0)
+            player_index = (int) Math.floor(Math.random() * 3);
 
         attack((int) Math.floor(Math.random() * 3));
     }
 
     public void attack(int target) {
         Player player = players[currentPlayer];
-        currentPlayer = currentPlayer + 1 % 4;
 
         if (player.getAmmo() == 0) {
             actionMessage = player.getNoAmmoMessage();
@@ -74,31 +76,45 @@ public class GameState extends ZookeeperData implements Serializable {
         if (boss.getHealth() <= 0) {
             actionMessage += "\n" + boss.getDeathMessage();
         }
+        currentPlayer = (currentPlayer + 1) % 4;
+        while(players[currentPlayer].getHealth() <= 0)
+            currentPlayer = (currentPlayer + 1) % 4;
         frameNum++;
     }
 
     public void killPlayer(int target) {
-        players[target].takeDamage(100);
+        Player curPlayer = players[target];
+        curPlayer.takeDamage(players[target].getHealth());
+        players[target] = curPlayer;
         actionMessage = players[target].getDeathMessage();
         frameNum++;
+        //if the target is the current player, move onto the next player's turn
+        if(target == currentPlayer){
+            while(players[currentPlayer].getHealth() <= 0)
+                currentPlayer = (currentPlayer + 1) % 4;
+        }
     }
 
     public void defend() {
         Player player = players[currentPlayer];
-        currentPlayer = currentPlayer + 1 % 4;
 
         player.upDefense(10);
         players[currentPlayer] = player;
+        currentPlayer = (currentPlayer + 1) % 4;
+        while(players[(currentPlayer + 1) % 4].getHealth() <= 0)
+            currentPlayer = (currentPlayer + 1) % 4;
         actionMessage = player.getDefendMessage(10);
         frameNum++;
     }
 
     public void reload() {
         Player player = players[currentPlayer];
-        currentPlayer = currentPlayer + 1 % 4;
 
         player.reload();
         players[currentPlayer] = player;
+        currentPlayer = (currentPlayer + 1) % 4;
+        while(players[(currentPlayer + 1) % 4].getHealth() <= 0)
+            currentPlayer = (currentPlayer + 1) % 4;
         actionMessage = player.getReloadMessage();
         frameNum++;
     }

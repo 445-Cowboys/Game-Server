@@ -25,8 +25,11 @@ public class GameWaitingPlayersWatcher implements IZkChildListener {
             Collections.shuffle(playerAddresses);
             //add all the players to the live client list. This list is really used to keep sending heartbeats
             //and to know when to encrypt/decrypt since only live game packets will be encrypted/decrypted
-            for(String address:playerAddresses)
-                Main.zkClient.addPlayerToLiveGameClients(address, Integer.parseInt(gameRoomPath.split("/")[2]));
+            int characterIndex = 0;
+            for(String address:playerAddresses) {
+                Main.zkClient.addPlayerToLiveGameClients(address, Integer.parseInt(gameRoomPath.split("/")[2]), characterIndex);
+                characterIndex++;
+            }
 
             //set up the encryption key
             byte[] symmetricKey = new byte[0];

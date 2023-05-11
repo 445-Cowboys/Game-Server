@@ -5,15 +5,19 @@ import org.server.Main;
 import org.server.packets.Factory;
 import org.zk.dataClasses.EncryptionKey;
 import org.zk.dataClasses.GameState;
+import org.zk.dataClasses.Player;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 public class GameStateChangeListener implements IZkDataListener {
     @Override
     public void handleDataChange(String path, Object o) throws Exception {
         //cast the object to a GameState type
         GameState gs = ((GameState) o);
+        System.out.println("Boy howdy the game state just changed...");
         //if it is zero that means the game is brand new, don't broadcast any changes.
         if(gs.getFrameNum() == 0) return;
         ByteBuffer gameState = new Factory().makeGameStatePacket(gs.getPlayers()[3].getHealth(), gs.getPlayers()[3].getAmmo(), new int[]{gs.getPlayers()[0].getHealth(), gs.getPlayers()[1].getHealth(), gs.getPlayers()[2].getHealth()}, new int[]{gs.getPlayers()[0].getAmmo(), gs.getPlayers()[1].getAmmo(), gs.getPlayers()[2].getAmmo()}, new int[]{gs.getPlayers()[0].getAmmo(), gs.getPlayers()[1].getAmmo(), gs.getPlayers()[2].getAmmo()},gs.getCurrentPlayer(), gs.getFrameNum(), gs.getActionMessage());
@@ -40,6 +44,27 @@ public class GameStateChangeListener implements IZkDataListener {
             //send the client the new game state.
             new Thread(new PacketSender(player, 9, path+"/live-players/"+player, gameState)).start();
         }
+
+        List<Player> livePlayers = Arrays.asList(Arrays.copyOfRange(gs.getPlayers(), 0, 3));
+        livePlayers.removeIf(player ->player.getHealth() <= 0);
+        if(gs.getPlayers()[3].getHealth() <= 0 || livePlayers.size() == 0) {
+            //if the boss died or all three players are dead, the game is over and we can go ahead and remove all the players
+            //from the list of live-players
+            int numOfPlayersStillHere = 0;
+            for(String player: Main.zkClient.getGameClients(Integer.parseInt(path.split("/")[2]))){
+                if(player.contains("write-lock")||player.contains("read-lock")) continue;
+                //player will hold the ip and listening port in the format "<IP>:<Port>"
+                //send the client the new game state.
+                numOfPlayersStillHere++;
+                Main.zkClient.removePlayerFromLiveGameClients(player, Integer.parseInt(path.split("/")[2]));
+            }
+
+            //reset the room stats
+            Main.zkClient.resetRoom(Integer.parseInt(path.split("/")[2]));
+            //subtract the number of players who were still in the game from the live player count
+            Main.zkClient.lowerPlayerCount(numOfPlayersStillHere);
+        }
+
     }
 
     @Override

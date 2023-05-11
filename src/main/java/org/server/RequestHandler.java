@@ -247,6 +247,14 @@ public class RequestHandler implements Runnable{
 
                 //at the end of everything, release the write lock
                 Main.zkClient.releaseWriteLock(lockVal);
+                //if the next player is the boss, call their action.
+                if(Main.zkClient.getGameState(playerAction.getGameRoom()).getCurrentPlayer() == 3){
+                    lockVal = Main.zkClient.getWriteLock("/game-rooms/"+playerAction.getGameRoom());
+                    gs = Main.zkClient.getGameState(playerAction.getGameRoom());
+                    gs.bossTurn();
+                    Main.zkClient.addNewGameState(playerAction.getGameRoom(), gs);
+                    Main.zkClient.releaseWriteLock(lockVal);
+                }
         }
     }
 }

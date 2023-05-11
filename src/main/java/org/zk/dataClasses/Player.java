@@ -49,7 +49,7 @@ public class Player implements Serializable {
     }
 
     public int shoot(Player player) {
-        int damageDealt = attack - player.getDefense();
+        int damageDealt = attack;
         if (damageDealt < 0) { damageDealt = 0; }
 
         player.takeDamage(damageDealt);
@@ -72,26 +72,26 @@ public class Player implements Serializable {
     }
 
     public String getShootMessage(String name) {
-        return this.name + shootMessage.replace("%p", name);
+        return this.name + " " +shootMessage.replace("%p", name);
     }
 
     public String getDefendMessage(int amount) {
-        return name + defendMessage.replace("%d", String.valueOf(amount));
+        return name + " " +defendMessage.replace("%d", String.valueOf(amount));
     }
 
     public String getReloadMessage() {
-        return name + reloadMessage;
+        return name + " " +reloadMessage;
     }
 
     public String getDamageMessage(int damageDealt) {
-        return name + damageMessage.replace("%d", String.valueOf(damageDealt));
+        return name + " " +damageMessage.replace("%d", String.valueOf(damageDealt));
     }
 
     public String getNoAmmoMessage() {
-        return name + noAmmoMessage;
+        return name + " " + noAmmoMessage;
     }
 
     public String getDeathMessage() {
-        return name + deathMessage;
+        return name + " " + deathMessage;
     }
 }

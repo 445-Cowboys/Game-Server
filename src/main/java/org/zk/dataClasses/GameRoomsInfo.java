@@ -58,6 +58,15 @@ public class GameRoomsInfo extends ZookeeperData{
         return gameRooms.get(index).removePlayer();
     }
 
+    public void resetRoom(int index){
+        gameRooms.get(index).changeState(0);
+        gameRooms.get(index).resetSize();
+    }
+
+    public int getRoomSize(int index){
+        return gameRooms.get(index).getSize();
+    }
+
 
     /**
      * Serializes the object to put it in a Z-Node

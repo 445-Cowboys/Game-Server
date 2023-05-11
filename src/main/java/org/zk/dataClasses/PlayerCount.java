@@ -23,6 +23,16 @@ public class PlayerCount extends ZookeeperData{
         return this;
     }
 
+    public PlayerCount subtract(int val){
+        count-=val;
+        return this;
+    }
+
+    public PlayerCount setCount(int val){
+        count=val;
+        return this;
+    }
+
     public int getCount(){
         return count;
     }
