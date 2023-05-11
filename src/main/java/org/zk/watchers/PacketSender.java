@@ -56,6 +56,7 @@ public class PacketSender implements Runnable{
                 }catch (TimeoutException | InterruptedException | ExecutionException e){
                     //we didn't get an ack back in time, increment the retry counter and continue
                     System.out.println("timed out...");
+                    System.out.println("retrying to send to "+clientAddress);
                     channel.close();
                     channel = DatagramChannel.open().bind(null);
                     buffer.rewind();
