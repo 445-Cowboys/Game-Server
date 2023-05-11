@@ -42,6 +42,7 @@ public class GameStateChangeListener implements IZkDataListener {
             if(player.contains("write-lock")||player.contains("read-lock")) continue;
             //player will hold the ip and listening port in the format "<IP>:<Port>"
             //send the client the new game state.
+            System.out.println("sending new game state to "+player);
             new Thread(new PacketSender(player, 9, path+"/live-players/"+player, gameState)).start();
         }
 
