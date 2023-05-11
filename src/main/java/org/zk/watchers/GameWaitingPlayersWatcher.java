@@ -3,6 +3,7 @@ package org.zk.watchers;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.server.Main;
 import org.server.packets.Factory;
+import org.zk.dataClasses.GameRoomsInfo;
 import org.zk.dataClasses.GameState;
 
 import java.nio.ByteBuffer;
@@ -55,6 +56,11 @@ public class GameWaitingPlayersWatcher implements IZkChildListener {
             initialGameState.addPlayer();
             initialGameState.addPlayer();
             initialGameState.addPlayer();
+            //reset the game room state to in progress
+            String lockID = Main.zkClient.getWriteLock("/lobby/stats");
+            GameRoomsInfo gi = Main.zkClient.getGameRoomsInfo();
+            gi.getGameRoom(Integer.parseInt(gameRoomPath.split("/")[2])).changeState(1);
+            Main.zkClient.releaseWriteLock(lockID);
             //save this newly made game state.
             Main.zkClient.addNewGameState(Integer.parseInt(gameRoomPath.split("/")[2]), initialGameState);
             //and finally, send the game start packet to the players

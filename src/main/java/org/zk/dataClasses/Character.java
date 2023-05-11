@@ -30,7 +30,7 @@ public enum Character {
             "is killed by a stray blaster bolt"),
 
     DOUG_LEA("Doug Lea",
-            100, 10, 100, 6,
+            10, 10, 100, 6,
             "shoots %p with two shotguns at once",
             "escapes into a thread for an extra %d defense",
             "reloads his shotguns in parallel",

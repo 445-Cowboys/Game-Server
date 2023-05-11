@@ -246,8 +246,8 @@ public class ZookeeperClient {
     }
 
     public void removePlayerFromLiveGameClients(String playerAddress, int gameRoom){
-        if(!zkClient.exists("/game-rooms/"+gameRoom+"/live-players"+playerAddress)) return;
-        zkClient.delete("/game-rooms/"+gameRoom+"/live-players"+playerAddress);
+        if(!zkClient.exists("/game-rooms/"+gameRoom+"/live-players/"+playerAddress)) return;
+        zkClient.delete("/game-rooms/"+gameRoom+"/live-players/"+playerAddress);
     }
 
     public void decrementPlayerCount(){
