@@ -65,6 +65,7 @@ public class GameStateChangeListener implements IZkDataListener {
             Main.zkClient.resetRoom(Integer.parseInt(path.split("/")[2]));
             //subtract the number of players who were still in the game from the live player count
             Main.zkClient.lowerPlayerCount(numOfPlayersStillHere);
+            Main.zkClient.addNewGameState(Integer.parseInt(path.split("/")[2]), new GameState());
         }
 
     }
