@@ -54,11 +54,13 @@ public class PacketSender implements Runnable{
                     task.get(2500, TimeUnit.MILLISECONDS);
                 }catch (TimeoutException | InterruptedException | ExecutionException e){
                     //we didn't get an ack back in time, increment the retry counter and continue
+                    System.out.println("timed out...");
                     channel.close();
                     channel = DatagramChannel.open().bind(null);
                     buffer.rewind();
                     continue;
                 }
+                System.out.println("Actually we got it.");
                 if ((int) ackBuf.get(0) == ackNum) {
                     channel.close();
                     return;

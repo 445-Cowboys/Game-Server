@@ -224,11 +224,21 @@ public class RequestHandler implements Runnable{
 
                 //first get the write lock for the game state
                 String lockVal = Main.zkClient.getWriteLock("/game-rooms/"+playerAction.getGameRoom());
+                GameState gs;
                 switch (playerAction.getAction()){
                     case 1:
-                        //
+                        //shoot the boss
+                        gs = Main.zkClient.getGameState(playerAction.getGameRoom());
+                        //index 3 is always the boss
+                        gs.attack(3);
+                        Main.zkClient.addNewGameState(playerAction.getGameRoom(), gs);
                         break;
                     case 2:
+                        //reload guns
+                        gs = Main.zkClient.getGameState(playerAction.getGameRoom());
+                        //index 3 is always the boss
+                        gs.attack(3);
+                        Main.zkClient.addNewGameState(playerAction.getGameRoom(), gs);
                         break;
                     default:
                         break;

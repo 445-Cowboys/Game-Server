@@ -235,14 +235,14 @@ public class ZookeeperClient {
     }
 
     public void removePlayerFromWaitingGameClients(String playerAddress, int gameRoom){
-        if(!zkClient.exists("/game-rooms/"+gameRoom+"/waiting-players"+playerAddress)) return;
-        zkClient.delete("/game-rooms/"+gameRoom+"/waiting-players"+playerAddress);
+        if(!zkClient.exists("/game-rooms/"+gameRoom+"/waiting-players/"+playerAddress)) return;
+        zkClient.delete("/game-rooms/"+gameRoom+"/waiting-players/"+playerAddress);
     }
 
     public void addPlayerToLiveGameClients(String playerAddress, int gameRoom){
-        removePlayerFromWaitingGameClients(playerAddress, gameRoom);
         if(zkClient.exists("/game-rooms/"+gameRoom+"/live-players/"+playerAddress)) return;
         zkClient.createPersistent("/game-rooms/"+gameRoom+"/live-players/"+playerAddress);
+        removePlayerFromWaitingGameClients(playerAddress, gameRoom);
     }
 
     public void removePlayerFromLiveGameClients(String playerAddress, int gameRoom){

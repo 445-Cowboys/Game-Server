@@ -17,6 +17,8 @@ public class GameState extends ZookeeperData implements Serializable {
     private int frameNum;
 
     public GameState() {
+        //first frame number will always be zero
+        this.frameNum = 0;
         this.players = new Player[4];
         this.numPlayers = 0;
         this.currentPlayer = 0;
@@ -28,7 +30,6 @@ public class GameState extends ZookeeperData implements Serializable {
         players[numPlayers] = new Player(Character.getPlayer(numPlayers));
         numPlayers++;
     }
-
     public Player[] getPlayers(){return players;}
 
     public int getCurrentPlayer() {
@@ -67,16 +68,19 @@ public class GameState extends ZookeeperData implements Serializable {
 
         Player boss = players[target];
         int damageDealt = player.shoot(boss);
-
+        players[target] = boss;
         actionMessage = player.getShootMessage(boss.getName()) + "\n" + boss.getDamageMessage(damageDealt);
 
         if (boss.getHealth() <= 0) {
             actionMessage += "\n" + boss.getDeathMessage();
         }
+        frameNum++;
     }
 
     public void killPlayer(int target) {
-
+        players[target].takeDamage(100);
+        actionMessage = players[target].getDeathMessage();
+        frameNum++;
     }
 
     public void defend() {
@@ -84,8 +88,9 @@ public class GameState extends ZookeeperData implements Serializable {
         currentPlayer = currentPlayer + 1 % 4;
 
         player.upDefense(10);
-
+        players[currentPlayer] = player;
         actionMessage = player.getDefendMessage(10);
+        frameNum++;
     }
 
     public void reload() {
@@ -93,9 +98,12 @@ public class GameState extends ZookeeperData implements Serializable {
         currentPlayer = currentPlayer + 1 % 4;
 
         player.reload();
-
+        players[currentPlayer] = player;
         actionMessage = player.getReloadMessage();
+        frameNum++;
     }
+
+    public int getFrameNum(){return frameNum;}
 
     @Override
     public byte[] serialize() {

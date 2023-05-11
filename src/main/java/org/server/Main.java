@@ -26,7 +26,10 @@ public class Main {
     static {
         try {
             keyRoom1 = new AEAD();
+            keyRoom1.genKeySet();
         } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

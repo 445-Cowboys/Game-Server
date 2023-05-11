@@ -28,16 +28,16 @@ public class LobbyStatsWatcher implements IZkDataListener {
             new Thread(new PacketSender(clientID, 10, "/lobby/waiting-clients/"+clientID, buffer)).start();
         }
         for(String clientID:Main.zkClient.getWaitingGameClients(0)){
-            if(clientID.contains("write-lock")||clientID.contains("read-lock")) continue;
+            if(clientID.contains("write-lock")||clientID.contains("read-lock")||Main.zkClient.pathExists("/game-rooms/0/live-players/"+clientID)) continue;
             new Thread(new PacketSender(clientID, 10, "/game-rooms/0/waiting-players/"+clientID, buffer)).start();
         }
 
         for(String clientID:Main.zkClient.getWaitingGameClients(1)){
-            if(clientID.contains("write-lock")||clientID.contains("read-lock")) continue;
+            if(clientID.contains("write-lock")||clientID.contains("read-lock")||Main.zkClient.pathExists("/game-rooms/1/live-players/"+clientID)) continue;
             new Thread(new PacketSender(clientID, 10, "/game-rooms/1/waiting-players/"+clientID, buffer)).start();
         }
         for(String clientID:Main.zkClient.getWaitingGameClients(2)){
-            if(clientID.contains("write-lock")||clientID.contains("read-lock")) continue;
+            if(clientID.contains("write-lock")||clientID.contains("read-lock")||Main.zkClient.pathExists("/game-rooms/2/live-players/"+clientID)) continue;
             new Thread(new PacketSender(clientID, 10, "/game-rooms/2/waiting-players/"+clientID, buffer)).start();
         }
 
