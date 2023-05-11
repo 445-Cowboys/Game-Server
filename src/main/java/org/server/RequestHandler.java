@@ -33,6 +33,7 @@ public class RequestHandler implements Runnable{
     @Override
     public void run() {
         try {
+            System.out.println("Client IP is "+client.toString());
             //first check if the packet comes from one of the game rooms. If it does, decrypt it.
             for(String client:Main.zkClient.getGameClients(0)){
                 if(client.contains("read-lock")||client.contains("write-lock")) continue;
