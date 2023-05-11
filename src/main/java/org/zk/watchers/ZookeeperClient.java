@@ -202,9 +202,7 @@ public class ZookeeperClient {
     }
 
     public GameState getGameState(int gameRoomNum){
-        String idVal = getReadLock("/game-rooms/"+gameRoomNum);
         GameState gs = zkClient.readData("/game-rooms/"+gameRoomNum);
-        releaseReadLock(idVal);
         return gs;
     }
 
@@ -416,6 +414,7 @@ public class ZookeeperClient {
     public EncryptionKey getEncryptionKey(int roomNum){
         return zkClient.readData("/game-rooms/"+roomNum+"/key");
     }
+
 
     public void addNewGameState(int roomNum, GameState gs){
         zkClient.writeData("/game-rooms/"+roomNum, gs);

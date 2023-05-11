@@ -220,6 +220,22 @@ public class RequestHandler implements Runnable{
                 channel.send(buf, client);
                 //modify the game state based on the action. We have a watcher that will broadcast
                 //any changes made to the game state
+
+                //first get the write lock for the game state
+                String lockVal = Main.zkClient.getWriteLock("/game-rooms/"+playerAction.getGameRoom());
+                switch (playerAction.getAction()){
+                    case 1:
+                        //
+                        break;
+                    case 2:
+                        break;
+                    default:
+                        break;
+                }
+
+
+                //at the end of everything, release the write lock
+                Main.zkClient.releaseWriteLock(lockVal);
         }
     }
 }
