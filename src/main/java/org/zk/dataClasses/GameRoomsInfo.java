@@ -51,7 +51,7 @@ public class GameRoomsInfo extends ZookeeperData{
      * @return true if remove was successful, false otherwise
      */
     public boolean removePlayer(int index){
-        if(gameRooms.get(index).getSize()-1 < 3 && gameRooms.get(index).getState() != 1){
+        if(gameRooms.get(index).getSize() < 3 && gameRooms.get(index).getState() != 1){
             gameRooms.get(index).changeState(0);
         }
 
