@@ -37,7 +37,7 @@ public class RequestHandler implements Runnable{
             //first check if the packet comes from one of the game rooms. If it does, decrypt it.
             for(String client:Main.zkClient.getGameClients(0)){
                 if(client.contains("read-lock")||client.contains("write-lock")) continue;
-                if(client.contains(this.client.toString().split(":")[0])){
+                if(client.contains(this.client.toString().split(":")[0].substring(1))){
                     //decrypt the packet, send it to the packet handler, and then return
                     Main.keyRoom0.parseKey(Main.zkClient.getEncryptionKey(0).getPublicKey());
                     data = ByteBuffer.wrap(Main.keyRoom0.decrypt(Arrays.copyOfRange(data.array(), 0, data.position())));
@@ -47,7 +47,7 @@ public class RequestHandler implements Runnable{
             }
             for(String client:Main.zkClient.getGameClients(1)){
                 if(client.contains("read-lock")||client.contains("write-lock")) continue;
-                if(client.contains(this.client.toString().split(":")[0])){
+                if(client.contains(this.client.toString().split(":")[0].substring(1))){
                     //decrypt the packet, send it to the packet handler, and then return
                     Main.keyRoom1.parseKey(Main.zkClient.getEncryptionKey(1).getPublicKey());
                     data = ByteBuffer.wrap(Main.keyRoom1.decrypt(Arrays.copyOfRange(data.array(), 0, data.position())));
@@ -58,7 +58,7 @@ public class RequestHandler implements Runnable{
             }
             for(String client:Main.zkClient.getGameClients(2)){
                 if(client.contains("read-lock")||client.contains("write-lock")) continue;
-                if(client.contains(this.client.toString().split(":")[0])){
+                if(client.contains(this.client.toString().split(":")[0].substring(1))){
                     //decrypt the packet, send it to the packet handler, and then return
                     Main.keyRoom2.parseKey(Main.zkClient.getEncryptionKey(2).getPublicKey());
                     data = ByteBuffer.wrap(Main.keyRoom0.decrypt(Arrays.copyOfRange(data.array(), 0, data.position())));
