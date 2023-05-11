@@ -44,7 +44,8 @@ public class PacketSender implements Runnable{
         };
         try {
             //if the client is dead, the path used to call it up will eventually die, just keep retrying until that happens
-            while(Main.zkClient.pathExists(path)) {
+            int retryNum = 0;
+            while(Main.zkClient.pathExists(path) || retryNum < 10) {
                 //make sure the position is at 0.
                 buffer.position(0);
                 channel.send(buffer, new InetSocketAddress(clientAddress.split(":")[0], Integer.parseInt(clientAddress.split(":")[1])));
@@ -58,6 +59,7 @@ public class PacketSender implements Runnable{
                     channel.close();
                     channel = DatagramChannel.open().bind(null);
                     buffer.rewind();
+                    retryNum++;
                     continue;
                 }
                 if ((int) ackBuf.get(0) == ackNum) {
@@ -68,6 +70,7 @@ public class PacketSender implements Runnable{
                 channel.close();
                 channel = DatagramChannel.open().bind(null);
                 buffer.rewind();
+                retryNum++;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -38,15 +38,19 @@ public class GameStateChangeListener implements IZkDataListener {
                 gameState = ByteBuffer.wrap(Main.keyRoom2.encrypt(gameState.array()));
                 break;
         }
-        for(String player: Main.zkClient.getGameClients(Integer.parseInt(path.split("/")[2]))){
-            if(player.contains("write-lock")||player.contains("read-lock")) continue;
-            //player will hold the ip and listening port in the format "<IP>:<Port>"
-            //send the client the new game state.
-            new Thread(new PacketSender(player, 9, path+"/live-players/"+player, gameState)).start();
-        }
 
         List<Player> livePlayers = Arrays.asList(Arrays.copyOfRange(gs.getPlayers(), 0, 3));
         livePlayers.removeIf(player ->player.getHealth() <= 0);
+
+        if(gs.getPlayers()[3].getHealth() <= 0 || livePlayers.size() == 0) {
+            for (String player : Main.zkClient.getGameClients(Integer.parseInt(path.split("/")[2]))) {
+                if (player.contains("write-lock") || player.contains("read-lock")) continue;
+                //player will hold the ip and listening port in the format "<IP>:<Port>"
+                //send the client the new game state.
+                System.out.println("sending new game state to " + player);
+                new Thread(new PacketSender(player, 9, path + "/live-players/" + player, gameState)).start();
+            }
+        }
         if(gs.getPlayers()[3].getHealth() <= 0 || livePlayers.size() == 0) {
             //if the boss died or all three players are dead, the game is over and we can go ahead and remove all the players
             //from the list of live-players
