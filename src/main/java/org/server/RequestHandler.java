@@ -2,13 +2,18 @@ package org.server;
 
 import org.server.packets.EnterRoom;
 import org.server.packets.Factory;
+import org.server.packets.PlayerAction;
+import org.zk.dataClasses.EncryptionKey;
 import org.zk.dataClasses.GameRoomsInfo;
 import org.zk.dataClasses.GameState;
+import org.zk.dataClasses.PlayerCount;
 
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
 
 //This is going to take a packet, run it through a switch case that will
 //decode the packet into a usable class object where different things will
@@ -28,8 +33,44 @@ public class RequestHandler implements Runnable{
     @Override
     public void run() {
         try {
+            //first check if the packet comes from one of the game rooms. If it does, decrypt it.
+            for(String client:Main.zkClient.getGameClients(0)){
+                if(client.contains("read-lock")||client.contains("write-lock")) continue;
+                if(client.contains(client.toString().split(":")[0])){
+                    //decrypt the packet, send it to the packet handler, and then return
+                    Main.keyRoom0.parseKey(Main.zkClient.getEncryptionKey(0).getPublicKey());
+                    data = ByteBuffer.wrap(Main.keyRoom0.decrypt(Arrays.copyOfRange(data.array(), 0, data.position())));
+                    gamePacketHandler(data);
+                    return;
+                }
+            }
+            for(String client:Main.zkClient.getGameClients(1)){
+                if(client.contains("read-lock")||client.contains("write-lock")) continue;
+                if(client.contains(client.toString().split(":")[0])){
+                    //decrypt the packet, send it to the packet handler, and then return
+                    Main.keyRoom1.parseKey(Main.zkClient.getEncryptionKey(1).getPublicKey());
+                    data = ByteBuffer.wrap(Main.keyRoom1.decrypt(Arrays.copyOfRange(data.array(), 0, data.position())));
+                    //maybe need to flip? I don't think so though
+                    gamePacketHandler(data);
+                    return;
+                }
+            }
+            for(String client:Main.zkClient.getGameClients(2)){
+                if(client.contains("read-lock")||client.contains("write-lock")) continue;
+                if(client.contains(client.toString().split(":")[0])){
+                    //decrypt the packet, send it to the packet handler, and then return
+                    Main.keyRoom2.parseKey(Main.zkClient.getEncryptionKey(2).getPublicKey());
+                    data = ByteBuffer.wrap(Main.keyRoom0.decrypt(Arrays.copyOfRange(data.array(), 0, data.position())));
+                    gamePacketHandler(data);
+                    return;
+                }
+            }
+
+            //if it isn't in any of the game rooms, the client is new or in the lobby, call the packet handler as normal
             packetHandler();
         } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
     }
@@ -161,5 +202,24 @@ public class RequestHandler implements Runnable{
 
         // the message to be sent back to the client
 //        String actionMessage = gs.getActionMessage();
+    }
+
+    public void gamePacketHandler(ByteBuffer dataBuf) throws IOException {
+        //send an ack back with the data
+        switch ((int)dataBuf.get(0)){
+            //ack back and make a game action object to work with
+            case 8:
+                ByteBuffer buf = ByteBuffer.allocate(1);
+                buf.put(dataBuf.get(0));
+                buf.flip();
+                System.out.println("sending to "+client.toString());
+                PlayerAction playerAction = new PlayerAction(dataBuf);
+                System.out.println(playerAction.getAction());
+                System.out.println(playerAction.getPlayerNum());
+                System.out.println(playerAction.getGameRoom());
+                channel.send(buf, client);
+                //modify the game state based on the action. We have a watcher that will broadcast
+                //any changes made to the game state
+        }
     }
 }

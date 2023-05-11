@@ -13,17 +13,12 @@ public class PlayerAction extends Packet{
     private final int gameRoom;
     private final int action;
     private final int playerNum;
-    private final byte[] data;
 
 
     public PlayerAction(ByteBuffer buffer) {
-        int totalLength = buffer.limit();
-            this.data = new byte[totalLength];
-            buffer.get(data, 0, data.length);
-            buffer.rewind();
-            this.gameRoom = buffer.getInt(1);
-            this.action = buffer.getInt(6);
-            this.playerNum = buffer.getInt(11);
+        this.gameRoom = buffer.getInt(1);
+        this.action = buffer.getInt(6);
+        this.playerNum = buffer.getInt(11);
     }
 
     @Override

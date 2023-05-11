@@ -413,6 +413,10 @@ public class ZookeeperClient {
         zkClient.writeData("/game-rooms/"+roomNum+"/key", new EncryptionKey(symmetricKey));
     }
 
+    public EncryptionKey getEncryptionKey(int roomNum){
+        return zkClient.readData("/game-rooms/"+roomNum+"/key");
+    }
+
     public void addNewGameState(int roomNum, GameState gs){
         zkClient.writeData("/game-rooms/"+roomNum, gs);
     }
