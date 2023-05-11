@@ -60,6 +60,7 @@ public class GameWaitingPlayersWatcher implements IZkChildListener {
             String lockID = Main.zkClient.getWriteLock("/lobby/stats");
             GameRoomsInfo gi = Main.zkClient.getGameRoomsInfo();
             gi.getGameRoom(Integer.parseInt(gameRoomPath.split("/")[2])).changeState(1);
+            Main.zkClient.writeToGameRoomsInfo(gi);
             Main.zkClient.releaseWriteLock(lockID);
             //save this newly made game state.
             Main.zkClient.addNewGameState(Integer.parseInt(gameRoomPath.split("/")[2]), initialGameState);
