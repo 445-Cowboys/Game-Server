@@ -191,7 +191,7 @@ class HeartBeat implements Runnable{
                 System.out.println("removed "+clientAddress+" from game");
                 //if it's the boss's turn, have them do their action just like how we do in request handler
                 //if the next player is the boss, call their action.
-                if(Main.zkClient.getGameState(roomNum).getCurrentPlayer() == 3){
+                if(Main.zkClient.getGameState(roomNum).getCurrentPlayer() == 3 && !Main.zkClient.getGameState(roomNum).allPlayersDead()){
                     String lockValue = Main.zkClient.getWriteLock("/game-rooms/"+roomNum);
                     System.out.println("got lock "+lockValue + "to do the boss action in client watch");
                     gs = Main.zkClient.getGameState(roomNum);

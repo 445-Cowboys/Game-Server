@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class GameState extends ZookeeperData implements Serializable {
 
@@ -60,6 +61,18 @@ public class GameState extends ZookeeperData implements Serializable {
         attack((int) Math.floor(Math.random() * 3));
     }
 
+    public boolean allPlayersDead(){
+        for(Player p: Arrays.copyOfRange(players, 0, 3)){
+            if(p.getHealth()>0)
+                return false;
+        }
+        return true;
+    }
+
+    public boolean bossDead(){
+        return players[3].getHealth()<=0;
+    }
+
     public void attack(int target) {
         Player player = players[currentPlayer];
 
@@ -93,6 +106,16 @@ public class GameState extends ZookeeperData implements Serializable {
         players[target] = curPlayer;
         actionMessage = players[target].getDeathMessage();
         //if the target is the current player, move onto the next player's turn
+        if(currentPlayer == target){
+            int initialCurrentPlayer = currentPlayer;
+            currentPlayer = (currentPlayer + 1) % 4;
+            while(players[currentPlayer].getHealth() <= 0) {
+                currentPlayer = (currentPlayer + 1) % 4;
+                //we circled around completely and there are no more people left
+                if(currentPlayer == initialCurrentPlayer)
+                    break;
+            }
+        }
         frameNum++;
     }
 
@@ -118,7 +141,6 @@ public class GameState extends ZookeeperData implements Serializable {
 
         player.reload();
         players[currentPlayer] = player;
-        currentPlayer = (currentPlayer + 1) % 4;
         int initialCurrentPlayer = currentPlayer;
         currentPlayer = (currentPlayer + 1) % 4;
         while(players[currentPlayer].getHealth() <= 0) {
