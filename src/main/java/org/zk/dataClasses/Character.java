@@ -12,7 +12,7 @@ public enum Character {
             "succumbs to his wounds"),
 
     ONE_THOUSAND_GRIT_SANDPAPER("1000 Grit Sandpaper",
-            100, 10, 100, 6,
+            100, 10, 10, 6,
             "shoots %p with his sandpaper shooter",
             "puts on a new layer of sandpaper and gains %d defense",
             "reloads his sandpaper shooter",
