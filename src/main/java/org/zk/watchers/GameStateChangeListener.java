@@ -60,7 +60,7 @@ public class GameStateChangeListener implements IZkDataListener {
                 //player will hold the ip and listening port in the format "<IP>:<Port>"
                 //send the client the new game state.
                 numOfPlayersStillHere++;
-                new Thread(new EndGamePacketSender(player, 9, path + "/live-players/" + player, gameState, Integer.parseInt(path.split("/")[2]))).start();
+                Main.zkClient.removePlayerFromLiveGameClients(player, Integer.parseInt(path.split("/")[2]));
             }
 
             //reset the room stats
