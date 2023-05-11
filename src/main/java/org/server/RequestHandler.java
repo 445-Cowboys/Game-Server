@@ -100,7 +100,6 @@ public class RequestHandler implements Runnable{
                 port_num = data.getInt(1);
                 if(Main.zkClient.pathExists("/lobby/waiting-clients"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromLobby(client.toString().split(":")[0] + ":" + port_num);
-                    Main.zkClient.decrementPlayerCount();
                 } else if (Main.zkClient.pathExists("/game-rooms/0/waiting-players"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 0);
                     String lockID = Main.zkClient.getWriteLock("/lobby/stats");
@@ -109,7 +108,6 @@ public class RequestHandler implements Runnable{
                     gameRoomsInfo.removePlayer(0);
                     Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
                     Main.zkClient.releaseWriteLock(lockID);
-                    Main.zkClient.decrementPlayerCount();
                 } else if (Main.zkClient.pathExists("/game-rooms/1/waiting-players"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 1);
                     String lockID = Main.zkClient.getWriteLock("/lobby/stats");
@@ -118,7 +116,6 @@ public class RequestHandler implements Runnable{
                     gameRoomsInfo.removePlayer(1);
                     Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
                     Main.zkClient.releaseWriteLock(lockID);
-                    Main.zkClient.decrementPlayerCount();
                 } else if (Main.zkClient.pathExists("/game-rooms/2/waiting-players"+client.toString().split(":")[0]+":"+port_num)) {
                     Main.zkClient.removePlayerFromWaitingGameClients(client.toString().split(":")[0] + ":" + port_num, 2);
                     String lockID = Main.zkClient.getWriteLock("/lobby/stats");
@@ -127,8 +124,8 @@ public class RequestHandler implements Runnable{
                     gameRoomsInfo.removePlayer(2);
                     Main.zkClient.writeToGameRoomsInfo(gameRoomsInfo);
                     Main.zkClient.releaseWriteLock( lockID);
-                    Main.zkClient.decrementPlayerCount();
                 } //next would be clauses for the live players, we would kill them in their game and remove them from the list of live players
+                Main.zkClient.decrementPlayerCount();
                 //Player action packet
             case 8:
                 //send an ACK back
