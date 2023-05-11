@@ -87,12 +87,10 @@ public class GameState extends ZookeeperData implements Serializable {
         curPlayer.takeDamage(players[target].getHealth());
         players[target] = curPlayer;
         actionMessage = players[target].getDeathMessage();
-        frameNum++;
         //if the target is the current player, move onto the next player's turn
-        if(target == currentPlayer){
-            while(players[currentPlayer].getHealth() <= 0)
-                currentPlayer = (currentPlayer + 1) % 4;
-        }
+        while(players[currentPlayer].getHealth() <= 0)
+            currentPlayer = (currentPlayer + 1) % 4;
+        frameNum++;
     }
 
     public void defend() {
@@ -101,7 +99,7 @@ public class GameState extends ZookeeperData implements Serializable {
         player.upDefense(10);
         players[currentPlayer] = player;
         currentPlayer = (currentPlayer + 1) % 4;
-        while(players[(currentPlayer + 1) % 4].getHealth() <= 0)
+        while(players[currentPlayer].getHealth() <= 0)
             currentPlayer = (currentPlayer + 1) % 4;
         actionMessage = player.getDefendMessage(10);
         frameNum++;
@@ -113,7 +111,7 @@ public class GameState extends ZookeeperData implements Serializable {
         player.reload();
         players[currentPlayer] = player;
         currentPlayer = (currentPlayer + 1) % 4;
-        while(players[(currentPlayer + 1) % 4].getHealth() <= 0)
+        while(players[currentPlayer].getHealth() <= 0)
             currentPlayer = (currentPlayer + 1) % 4;
         actionMessage = player.getReloadMessage();
         frameNum++;

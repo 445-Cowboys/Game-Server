@@ -39,7 +39,6 @@ public class GameStateChangeListener implements IZkDataListener {
                 break;
         }
 
-
         for (String player : Main.zkClient.getGameClients(Integer.parseInt(path.split("/")[2]))) {
                 if (player.contains("write-lock") || player.contains("read-lock")) continue;
                 //player will hold the ip and listening port in the format "<IP>:<Port>"
