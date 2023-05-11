@@ -221,6 +221,7 @@ public class RequestHandler implements Runnable{
 
                 //first get the write lock for the game state
                 String lockVal = Main.zkClient.getWriteLock("/game-rooms/"+playerAction.getGameRoom());
+                System.out.println("got lock "+lockVal);
                 GameState gs;
                 switch (playerAction.getAction()){
                     case 1:
@@ -244,13 +245,16 @@ public class RequestHandler implements Runnable{
 
                 //at the end of everything, release the write lock
                 Main.zkClient.releaseWriteLock(lockVal);
+                System.out.println("release lock "+lockVal);
                 //if the next player is the boss, call their action.
                 if(Main.zkClient.getGameState(playerAction.getGameRoom()).getCurrentPlayer() == 3){
                     lockVal = Main.zkClient.getWriteLock("/game-rooms/"+playerAction.getGameRoom());
+                    System.out.println("got lock "+lockVal);
                     gs = Main.zkClient.getGameState(playerAction.getGameRoom());
                     gs.bossTurn();
                     Main.zkClient.addNewGameState(playerAction.getGameRoom(), gs);
                     Main.zkClient.releaseWriteLock(lockVal);
+                    System.out.println("release lock "+lockVal);
                 }
         }
     }

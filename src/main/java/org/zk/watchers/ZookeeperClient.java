@@ -314,7 +314,7 @@ public class ZookeeperClient {
         String curLockHolder = path+"/write-lock/"+writers.get(0);
         //loop until we are next in line to write and we have no other readers
         //we add the null check in case the current lock holder deletes and we are dealing with old data
-        while(curLockHolder==null || !curLockHolder.equals(id) || numOfReaders!=0){
+        while(!curLockHolder.equals(id) || numOfReaders != 0){
             numOfReaders = zkClient.getChildren(path+"/read-lock").size();
             writers = zkClient.getChildren(path+"/write-lock");
             writers.sort(String::compareTo);

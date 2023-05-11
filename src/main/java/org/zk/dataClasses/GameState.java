@@ -76,9 +76,14 @@ public class GameState extends ZookeeperData implements Serializable {
         if (boss.getHealth() <= 0) {
             actionMessage += "\n" + boss.getDeathMessage();
         }
+        int initialCurrentPlayer = currentPlayer;
         currentPlayer = (currentPlayer + 1) % 4;
-        while(players[currentPlayer].getHealth() <= 0)
+        while(players[currentPlayer].getHealth() <= 0) {
             currentPlayer = (currentPlayer + 1) % 4;
+            //we circled around completely and there are no more people left
+            if(currentPlayer == initialCurrentPlayer)
+                break;
+        }
         frameNum++;
     }
 
@@ -88,8 +93,6 @@ public class GameState extends ZookeeperData implements Serializable {
         players[target] = curPlayer;
         actionMessage = players[target].getDeathMessage();
         //if the target is the current player, move onto the next player's turn
-        while(players[currentPlayer].getHealth() <= 0)
-            currentPlayer = (currentPlayer + 1) % 4;
         frameNum++;
     }
 
@@ -98,9 +101,14 @@ public class GameState extends ZookeeperData implements Serializable {
 
         player.upDefense(10);
         players[currentPlayer] = player;
+        int initialCurrentPlayer = currentPlayer;
         currentPlayer = (currentPlayer + 1) % 4;
-        while(players[currentPlayer].getHealth() <= 0)
+        while(players[currentPlayer].getHealth() <= 0) {
             currentPlayer = (currentPlayer + 1) % 4;
+            //we circled around completely and there are no more people left
+            if(currentPlayer == initialCurrentPlayer)
+                break;
+        }
         actionMessage = player.getDefendMessage(10);
         frameNum++;
     }
@@ -111,8 +119,14 @@ public class GameState extends ZookeeperData implements Serializable {
         player.reload();
         players[currentPlayer] = player;
         currentPlayer = (currentPlayer + 1) % 4;
-        while(players[currentPlayer].getHealth() <= 0)
+        int initialCurrentPlayer = currentPlayer;
+        currentPlayer = (currentPlayer + 1) % 4;
+        while(players[currentPlayer].getHealth() <= 0) {
             currentPlayer = (currentPlayer + 1) % 4;
+            //we circled around completely and there are no more people left
+            if(currentPlayer == initialCurrentPlayer)
+                break;
+        }
         actionMessage = player.getReloadMessage();
         frameNum++;
     }

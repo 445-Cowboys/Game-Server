@@ -179,22 +179,26 @@ class HeartBeat implements Runnable{
                 Main.zkClient.releaseWriteLock(lockID);
                 //kill the player in the game state
                 //get the write lock on the game state
-                lockID = Main.zkClient.getWriteLock("/game-rooms/"+roomNum);
+                String lockVal = Main.zkClient.getWriteLock("/game-rooms/"+roomNum);
+                System.out.println("got lock "+lockVal+" to kill the current player");
                 //get the current game state, kill the player to modify it.
                 GameState gs = Main.zkClient.getGameState(roomNum);
                 gs.killPlayer(playerPosition);
                 Main.zkClient.addNewGameState(roomNum, gs);
                 //release the lock
-                Main.zkClient.releaseWriteLock(lockID);
+                Main.zkClient.releaseWriteLock(lockVal);
+                System.out.println("release lock "+lockVal);
                 System.out.println("removed "+clientAddress+" from game");
                 //if it's the boss's turn, have them do their action just like how we do in request handler
                 //if the next player is the boss, call their action.
                 if(Main.zkClient.getGameState(roomNum).getCurrentPlayer() == 3){
-                    String lockVal = Main.zkClient.getWriteLock("/game-rooms/"+roomNum);
+                    String lockValue = Main.zkClient.getWriteLock("/game-rooms/"+roomNum);
+                    System.out.println("got lock "+lockValue + "to do the boss action in client watch");
                     gs = Main.zkClient.getGameState(roomNum);
                     gs.bossTurn();
                     Main.zkClient.addNewGameState(roomNum, gs);
-                    Main.zkClient.releaseWriteLock(lockVal);
+                    Main.zkClient.releaseWriteLock(lockValue);
+                    System.out.println("release lock "+lockValue);
                 }
             }
         } catch (IOException e) {
