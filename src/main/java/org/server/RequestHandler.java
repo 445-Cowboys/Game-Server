@@ -90,6 +90,7 @@ public class RequestHandler implements Runnable{
                 GameRoomsInfo gfInfo = Main.zkClient.getGameRoomsInfo();
                 port_num = data.getInt(1);
                 channel.send(new Factory().makeGameRooms(new int[]{gfInfo.getGameRoom(0).getSize(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new boolean[]{gfInfo.getGameRoom(0).getRoomIsFull(), gfInfo.getGameRoom(1).getRoomIsFull(), gfInfo.getGameRoom(2).getRoomIsFull()},new int[]{gfInfo.getGameRoom(0).getState(),gfInfo.getGameRoom(1).getSize(),gfInfo.getGameRoom(2).getSize()}, new int[]{Main.zkClient.checkServerStatus("rho.cs.oswego.edu"),Main.zkClient.checkServerStatus("moxie.cs.oswego.edu"),Main.zkClient.checkServerStatus("altair.cs.oswego.edu")},Main.zkClient.getPlayerCount()), client);
+                channel.close();
                 //sleep for a sec so we don't back traffic up too bad for the new member
                 Thread.sleep(1000);
                 //add the ip address of the client to the list of clients in the lobby room
@@ -133,6 +134,7 @@ public class RequestHandler implements Runnable{
                 buf.put((byte)9);
                 buf.flip();
                 channel.send(buf, client);
+                channel.close();
                 //data is what holds the received packet
                 //TODO modify game state based on the action
                 break;
@@ -143,6 +145,7 @@ public class RequestHandler implements Runnable{
                 buf.put((byte)2);
                 buf.flip();
                 channel.send(buf, client);
+                channel.close();
                 //remove the IP from the list of clients
                 break;
             //Enter game room packet
@@ -170,6 +173,7 @@ public class RequestHandler implements Runnable{
                 }
                 //release the write lock (very important...)
                 Main.zkClient.releaseWriteLock(lockId);
+                channel.close();
                 break;
             default:
                 break;
@@ -216,6 +220,7 @@ public class RequestHandler implements Runnable{
                 System.out.println(playerAction.getPlayerNum());
                 System.out.println(playerAction.getGameRoom());
                 channel.send(buf, client);
+                channel.close();
                 //modify the game state based on the action. We have a watcher that will broadcast
                 //any changes made to the game state
 

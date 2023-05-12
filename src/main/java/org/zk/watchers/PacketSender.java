@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.Arrays;
 import java.util.concurrent.*;
 
 public class PacketSender implements Runnable{
@@ -47,7 +48,7 @@ public class PacketSender implements Runnable{
             int retryNum = 0;
             while(Main.zkClient.pathExists(path) && retryNum < 10) {
                 //make sure the position is at 0.
-                buffer.position(0);
+                buffer = ByteBuffer.wrap(Arrays.copyOfRange(buffer.array(), 0, buffer.limit()));
                 channel.send(buffer, new InetSocketAddress(clientAddress.split(":")[0], Integer.parseInt(clientAddress.split(":")[1])));
                 Future<Void> task = executorService.submit(Callable);
                 //and now the channel waits to receive word back from the client
@@ -75,6 +76,7 @@ public class PacketSender implements Runnable{
                 buffer.rewind();
                 retryNum++;
             }
+            channel.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

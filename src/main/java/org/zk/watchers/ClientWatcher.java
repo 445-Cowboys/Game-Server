@@ -145,6 +145,7 @@ class HeartBeat implements Runnable{
                 //if we get here we somehow got a value from somewhere else so just retry without incrementing the retry num
             }
 
+            channel.close();
             //remove this client
             if(!parentPath.startsWith("/")){
                 parentPath = "/"+parentPath;
