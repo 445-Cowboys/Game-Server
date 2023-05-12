@@ -61,7 +61,7 @@ public class RequestHandler implements Runnable{
                 if(client.contains(this.client.toString().split(":")[0].substring(1))){
                     //decrypt the packet, send it to the packet handler, and then return
                     Main.keyRoom2.parseKey(Main.zkClient.getEncryptionKey(2).getPublicKey());
-                    data = ByteBuffer.wrap(Main.keyRoom0.decrypt(Arrays.copyOfRange(data.array(), 0, data.position())));
+                    data = ByteBuffer.wrap(Main.keyRoom1.decrypt(Arrays.copyOfRange(data.array(), 0, data.position())));
                     gamePacketHandler(data);
                     return;
                 }

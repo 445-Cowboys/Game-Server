@@ -6,7 +6,6 @@ import org.I0Itec.zkclient.exception.ZkNodeExistsException;
 import org.zk.dataClasses.*;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ZookeeperClient {
@@ -202,8 +201,7 @@ public class ZookeeperClient {
     }
 
     public GameState getGameState(int gameRoomNum){
-        GameState gs = zkClient.readData("/game-rooms/"+gameRoomNum);
-        return gs;
+        return zkClient.readData("/game-rooms/"+gameRoomNum);
     }
 
 
