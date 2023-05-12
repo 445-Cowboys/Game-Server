@@ -58,7 +58,7 @@ public class GameState extends ZookeeperData implements Serializable {
         while(players[player_index].getHealth() <= 0 && !allPlayersDead())
             player_index = (int) Math.floor(Math.random() * 3);
 
-        attack((int) Math.floor(Math.random() * 3));
+        attack(player_index);
     }
 
     public boolean allPlayersDead(){
