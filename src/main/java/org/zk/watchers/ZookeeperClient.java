@@ -336,6 +336,7 @@ public class ZookeeperClient {
      * @param path the location of the data we want to read
      */
     public String getReadLock(String path){
+        System.out.println("read lock for "+path);
         //create the initial lock node if one does not exist
         if(!zkClient.exists(path+"/read-lock")){
             zkClient.createPersistent(path+"/read-lock");
